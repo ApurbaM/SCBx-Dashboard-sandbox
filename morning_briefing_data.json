@@ -1,0 +1,272 @@
+{
+  "meta": {
+    "generated_at": "2026-04-13T08:02:56.176568",
+    "customer_id": "demo-001",
+    "persona": "Wealth Potential",
+    "version": "1.0"
+  },
+  "greeting": {
+    "time_of_day": "morning",
+    "name": "Ananya",
+    "message": "Good morning, Ananya",
+    "subtitle": "Here's your hot matcha for the day, and your personal briefing"
+  },
+  "financial_health": {
+    "overall_score": 73,
+    "overall_label": "Good",
+    "peer_percentile": 83,
+    "pillars": {
+      "investment": {
+        "score": 44,
+        "label": "Below Average"
+      },
+      "borrowing": {
+        "score": 85,
+        "label": "Good"
+      },
+      "insurance": {
+        "score": 55,
+        "label": "Average"
+      },
+      "liquidity": {
+        "score": 100,
+        "label": "Good"
+      }
+    },
+    "message": "Ananya, you're on track! A few tweaks can strengthen your financial wellness."
+  },
+  "for_you_nudges": [
+    {
+      "icon": "fitness",
+      "text": "You haven't been to Pilates in 2 weeks? ClassPass is offering 30% off your next 5 classes!",
+      "category": "lifestyle",
+      "action_url": "#classpass"
+    },
+    {
+      "icon": "beauty",
+      "text": "Running out of sunscreen? Beautrium is having summer sales - up to 40% off!",
+      "category": "lifestyle",
+      "action_url": "#beautrium"
+    },
+    {
+      "icon": "travel",
+      "text": "Upcoming weekend in Singapore - see which airport lounges are available with your CardX!",
+      "category": "travel",
+      "action_url": "#lounges"
+    },
+    {
+      "icon": "wellness",
+      "text": "You've been working late 4 nights this week. Here are spa vouchers from PointX just for you!",
+      "category": "wellness",
+      "action_url": "#pointx-spa"
+    },
+    {
+      "icon": "rewards",
+      "text": "You have 18,750 PointX waiting! Redeem for your Singapore trip or convert to airline miles.",
+      "category": "financial",
+      "action_url": "#pointx"
+    }
+  ],
+  "todays_tasks": [
+    {
+      "text": "Pay AIS Phone Bill",
+      "amount_thb": 899,
+      "due": "Due in 2 days",
+      "completed": false,
+      "priority": "high"
+    },
+    {
+      "text": "DCA on S&P500",
+      "amount_thb": 5000,
+      "due": "Monthly recurring",
+      "completed": false,
+      "priority": "medium"
+    },
+    {
+      "text": "Review CardX statements",
+      "amount_thb": null,
+      "due": "This week",
+      "completed": false,
+      "priority": "low"
+    },
+    {
+      "text": "Top up Emergency Fund (almost there!)",
+      "amount_thb": 31900,
+      "due": "When ready",
+      "completed": false,
+      "priority": "low"
+    }
+  ],
+  "key_insights": [
+    {
+      "icon": "warning",
+      "title": "Dining spend up to +8%",
+      "subtitle": "vs last month - you might be overspending",
+      "type": "spending",
+      "sentiment": "negative"
+    },
+    {
+      "icon": "trending_up",
+      "title": "Portfolio +6.0% (3M)",
+      "subtitle": "Outperforming benchmark by 1.2%",
+      "type": "portfolio",
+      "sentiment": "positive"
+    },
+    {
+      "icon": "savings",
+      "title": "You saved 2,540 THB more this month",
+      "subtitle": "Savings rate now at 22%",
+      "type": "savings",
+      "sentiment": "positive"
+    },
+    {
+      "icon": "market",
+      "title": "SET Index at 1,485.16",
+      "subtitle": "+0.52% today. Your SCB SET Fund is tracking well.",
+      "type": "market",
+      "sentiment": "positive"
+    }
+  ],
+  "ways_to_save": {
+    "top_spending_categories": [
+      {
+        "name": "Dining",
+        "pct": 32,
+        "amount_thb": 12800,
+        "color": "#e74c3c"
+      },
+      {
+        "name": "Transport",
+        "pct": 24,
+        "amount_thb": 9600,
+        "color": "#3498db"
+      },
+      {
+        "name": "Shopping",
+        "pct": 18,
+        "amount_thb": 7200,
+        "color": "#9b59b6"
+      }
+    ],
+    "tips": [
+      {
+        "text": "Try meal prepping 2x a week to save ~3,000 THB/month on dining",
+        "potential_saving_thb": 3000
+      },
+      {
+        "text": "Switch to BTS monthly pass to save up to THB 800/month",
+        "potential_saving_thb": 800
+      },
+      {
+        "text": "Switch AIS Phone Bill to auto-pay to avoid late fees (save up to THB 200/year)",
+        "potential_saving_thb": 200
+      },
+      {
+        "text": "Switch BTS Rabbit Card Top-up to auto-pay to avoid late fees (save up to THB 200/year)",
+        "potential_saving_thb": 200
+      }
+    ],
+    "total_potential_saving_thb": 4200,
+    "auto_pay_tip": "Switch to auto-pay to save up to THB 5,000/month to avoid late fees"
+  },
+  "alerts": [
+    {
+      "type": "bill_due",
+      "card_name": "SCB WEALTH Credit Card by CardX",
+      "card_number": "XXXX-XXXX-XXXX-4624",
+      "issuer": "CardX",
+      "total_amount_thb": 22300,
+      "due_date": "2026-04-25",
+      "days_until_due": 12,
+      "payment_options": [
+        {
+          "label": "Minimum payment",
+          "amount_thb": 1115,
+          "note": "+THB 297 interest",
+          "recommended": false
+        },
+        {
+          "label": "Full payment",
+          "amount_thb": 22300,
+          "note": "No interest",
+          "recommended": true
+        },
+        {
+          "label": "6-month installment",
+          "amount_thb": 3717.0,
+          "note": "0% interest",
+          "recommended": false,
+          "is_monthly": true
+        }
+      ],
+      "message": "Your CardX ending 4624 bill is due soon. Paying only the minimum would add up to 297 THB in interest."
+    }
+  ],
+  "portfolio_summary": {
+    "total_value_thb": 265000,
+    "investments": [
+      {
+        "name": "SCB SET Index Fund",
+        "type": "Equity Fund",
+        "value_thb": 120000,
+        "return_pct": 4.8
+      },
+      {
+        "name": "S&P500 DCA",
+        "type": "Foreign Equity",
+        "value_thb": 85000,
+        "return_pct": 8.2
+      },
+      {
+        "name": "SCB Income Plus",
+        "type": "Bond Fund",
+        "value_thb": 45000,
+        "return_pct": 3.1
+      },
+      {
+        "name": "SCB Gold Fund",
+        "type": "Commodity",
+        "value_thb": 15000,
+        "return_pct": 12.4
+      }
+    ]
+  },
+  "accounts_summary": {
+    "total_savings_thb": 348500,
+    "accounts": [
+      {
+        "name": "SCB Easy Savings",
+        "number": "XXX-XXX596-3",
+        "balance_thb": 185400
+      },
+      {
+        "name": "SCB Goal Save",
+        "number": "XXX-XXX847-1",
+        "balance_thb": 163100
+      }
+    ]
+  },
+  "market_snapshot": {
+    "set_index_current": 1485.16,
+    "set_index_prev_close": 1477.41,
+    "set_change_pct": 0.52,
+    "gold_thb_per_baht": 44350,
+    "gold_change_pct": 1.8,
+    "usd_thb": 33.85,
+    "usd_change_pct": -0.3,
+    "top_set_gainers": [
+      "DELTA",
+      "GULF",
+      "BDMS"
+    ],
+    "top_set_losers": [
+      "PTT",
+      "AOT",
+      "CPALL"
+    ]
+  },
+  "scbx_context": {
+    "app": "SCB EASY",
+    "pointx_balance": 18750
+  }
+}

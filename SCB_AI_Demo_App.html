@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCB AI-Native Banking Demo — Agentic AI Use Cases</title>
+<style>
+:root {
+  --scb-purple: #4e2a84;
+  --scb-purple-light: #7b5ea7;
+  --scb-purple-dark: #3a1d66;
+  --scb-gold: #c9a84c;
+  --accent: #0071eb;
+  --accent-light: #e8f0fe;
+  --success: #16a34a;
+  --success-bg: #ecfdf5;
+  --warning: #ea8c00;
+  --warning-bg: #fffbeb;
+  --danger: #dc2626;
+  --danger-bg: #fef2f2;
+  --surface: #f5f6fa;
+  --card: #ffffff;
+  --text: #1a1a2e;
+  --text2: #555770;
+  --border: #e2e4ea;
+  --radius: 12px;
+  --shadow: 0 2px 12px rgba(78,42,132,.08);
+  --shadow-lg: 0 8px 32px rgba(78,42,132,.12);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--surface);color:var(--text);line-height:1.5;overflow-x:hidden}
+
+/* SIDEBAR */
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:260px;background:linear-gradient(180deg,var(--scb-purple-dark) 0%,var(--scb-purple) 100%);color:#fff;z-index:200;display:flex;flex-direction:column;transition:transform .3s}
+.sidebar-brand{padding:24px 20px 16px;border-bottom:1px solid rgba(255,255,255,.12)}
+.sidebar-brand h2{font-size:18px;font-weight:700;letter-spacing:-.3px}
+.sidebar-brand span{font-size:11px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1.5px;display:block;margin-top:2px}
+.sidebar-nav{flex:1;padding:12px 0;overflow-y:auto}
+.nav-group{padding:12px 20px 4px;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,.35);font-weight:700}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 20px;font-size:13.5px;color:rgba(255,255,255,.7);cursor:pointer;transition:all .15s;border-left:3px solid transparent}
+.nav-item:hover{background:rgba(255,255,255,.08);color:#fff}
+.nav-item.active{background:rgba(255,255,255,.12);color:#fff;border-left-color:var(--scb-gold);font-weight:600}
+.nav-icon{width:20px;text-align:center;font-size:16px;flex-shrink:0}
+.nav-badge{margin-left:auto;background:var(--scb-gold);color:var(--scb-purple-dark);font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px}
+
+/* MAIN */
+.main{margin-left:260px;min-height:100vh}
+.topbar{background:var(--card);border-bottom:1px solid var(--border);padding:14px 32px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+.topbar h1{font-size:16px;font-weight:700;color:var(--scb-purple)}
+.topbar-meta{margin-left:auto;font-size:12px;color:var(--text2)}
+.page{padding:28px 32px;display:none}
+.page.active{display:block}
+
+/* CARDS */
+.grid{display:grid;gap:20px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);transition:box-shadow .2s,transform .2s}
+.card:hover{box-shadow:var(--shadow-lg);transform:translateY(-1px)}
+.card-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.card-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.card h3{font-size:15px;font-weight:700;color:var(--scb-purple)}
+.card p{font-size:13px;color:var(--text2)}
+
+/* STAT CARDS */
+.stat{text-align:center;padding:20px}
+.stat-val{font-size:28px;font-weight:800;color:var(--scb-purple)}
+.stat-label{font-size:12px;color:var(--text2);margin-top:2px}
+.stat-change{font-size:11px;font-weight:600;margin-top:4px}
+.stat-change.up{color:var(--success)}
+.stat-change.down{color:var(--danger)}
+
+/* TAGS */
+.tag{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:600;margin:2px}
+.tag-purple{background:#f0e6ff;color:var(--scb-purple)}
+.tag-blue{background:var(--accent-light);color:var(--accent)}
+.tag-green{background:var(--success-bg);color:var(--success)}
+.tag-gold{background:var(--warning-bg);color:#8a6d12}
+.tag-red{background:var(--danger-bg);color:var(--danger)}
+
+/* CHAT */
+.chat-container{display:flex;flex-direction:column;height:calc(100vh - 140px);max-height:700px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.chat-header{padding:16px 20px;background:var(--scb-purple);color:#fff;display:flex;align-items:center;gap:12px}
+.chat-header h3{font-size:14px;font-weight:600}
+.chat-status{width:8px;height:8px;border-radius:50%;background:#4ade80;margin-left:auto}
+.chat-messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px}
+.msg{max-width:80%;padding:12px 16px;border-radius:16px;font-size:13.5px;line-height:1.55;animation:msgIn .3s ease}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.msg-ai{background:#f0e6ff;color:var(--text);align-self:flex-start;border-bottom-left-radius:4px}
+.msg-user{background:var(--scb-purple);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.msg-system{background:var(--accent-light);color:var(--accent);align-self:center;text-align:center;font-size:12px;padding:8px 16px;border-radius:20px;font-weight:600}
+.msg-action{background:var(--success-bg);border:1px solid #bbf7d0;align-self:flex-start;border-radius:12px}
+.msg-action .action-title{font-size:12px;font-weight:700;color:var(--success);margin-bottom:4px}
+.typing{display:flex;gap:4px;padding:12px 16px;align-self:flex-start}
+.typing span{width:8px;height:8px;border-radius:50%;background:var(--scb-purple-light);animation:bounce .6s infinite alternate}
+.typing span:nth-child(2){animation-delay:.2s}
+.typing span:nth-child(3){animation-delay:.4s}
+@keyframes bounce{to{transform:translateY(-6px);opacity:.4}}
+.chat-input{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--border);background:#fafbfc}
+.chat-input input{flex:1;border:1px solid var(--border);border-radius:24px;padding:10px 18px;font-size:13px;outline:none;transition:border .2s}
+.chat-input input:focus{border-color:var(--scb-purple)}
+.chat-input button{background:var(--scb-purple);color:#fff;border:none;border-radius:24px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;transition:background .2s}
+.chat-input button:hover{background:var(--scb-purple-dark)}
+.quick-actions{display:flex;gap:8px;padding:8px 16px;flex-wrap:wrap}
+.quick-btn{background:#f0e6ff;border:1px solid #d8c4f0;border-radius:20px;padding:6px 14px;font-size:12px;color:var(--scb-purple);cursor:pointer;transition:all .15s;font-weight:500}
+.quick-btn:hover{background:var(--scb-purple);color:#fff}
+
+/* WORKFLOW */
+.workflow{display:flex;gap:0;align-items:flex-start;overflow-x:auto;padding:8px 0}
+.wf-step{flex:0 0 160px;text-align:center;position:relative}
+.wf-step::after{content:'';position:absolute;top:22px;right:-8px;width:16px;height:2px;background:var(--border)}
+.wf-step:last-child::after{display:none}
+.wf-circle{width:44px;height:44px;border-radius:50%;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:18px;border:2px solid var(--border);background:var(--card);transition:all .4s}
+.wf-step.done .wf-circle{background:var(--success);border-color:var(--success);color:#fff}
+.wf-step.active .wf-circle{background:var(--scb-purple);border-color:var(--scb-purple);color:#fff;box-shadow:0 0 0 4px rgba(78,42,132,.2)}
+.wf-step.waiting .wf-circle{background:var(--warning-bg);border-color:var(--warning);color:var(--warning)}
+.wf-label{font-size:11px;color:var(--text2);font-weight:600}
+.wf-detail{font-size:10px;color:var(--text2);margin-top:2px;opacity:.7}
+
+/* CONFIDENCE BAR */
+.conf-bar{height:8px;border-radius:4px;background:#eee;overflow:hidden;margin:4px 0}
+.conf-fill{height:100%;border-radius:4px;transition:width 1s ease}
+.conf-high{background:var(--success)}
+.conf-med{background:var(--warning)}
+.conf-low{background:var(--danger)}
+
+/* PROGRESS */
+.progress{height:6px;border-radius:3px;background:#eee;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--scb-purple),var(--scb-gold));transition:width 1.5s ease}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{background:var(--scb-purple);color:#fff;padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2)}
+tr:hover td{background:#faf8ff}
+
+/* TWIN PROFILE */
+.twin-card{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center}
+.twin-avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--scb-purple),var(--scb-gold));display:flex;align-items:center;justify-content:center;font-size:28px;color:#fff}
+.twin-name{font-size:16px;font-weight:700;color:var(--scb-purple)}
+.twin-meta{font-size:12px;color:var(--text2)}
+.trait-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.trait{background:var(--surface);border-radius:8px;padding:10px;text-align:center}
+.trait-val{font-size:16px;font-weight:700;color:var(--scb-purple)}
+.trait-lbl{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+
+/* TIMELINE */
+.tl{position:relative;padding-left:24px}
+.tl::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--scb-purple),var(--scb-gold))}
+.tl-item{position:relative;margin-bottom:16px;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:10px;font-size:12.5px}
+.tl-item::before{content:'';position:absolute;left:-20px;top:16px;width:10px;height:10px;border-radius:50%;background:var(--scb-purple);border:2px solid var(--surface)}
+.tl-time{font-size:10px;color:var(--text2);font-weight:600}
+.tl-title{font-weight:700;color:var(--scb-purple);margin:2px 0}
+
+/* ANIMATIONS */
+.fade-in{animation:fadeIn .5s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+@media(max-width:900px){
+  .sidebar{transform:translateX(-260px)}
+  .main{margin-left:0}
+  .g2,.g3,.g4{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <h2>SCB AI Banking</h2>
+    <span>Agentic AI Demo</span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-group">Overview</div>
+    <div class="nav-item active" onclick="navigate('home')">
+      <span class="nav-icon">&#127968;</span> Home Dashboard
+    </div>
+
+    <div class="nav-group">Conversational Banking</div>
+    <div class="nav-item" onclick="navigate('uc1')">
+      <span class="nav-icon">&#128179;</span> Card Dispute Agent
+      <span class="nav-badge">UC1</span>
+    </div>
+    <div class="nav-item" onclick="navigate('uc2')">
+      <span class="nav-icon">&#128176;</span> Wealth Advisory Agent
+      <span class="nav-badge">UC2</span>
+    </div>
+    <div class="nav-item" onclick="navigate('uc3')">
+      <span class="nav-icon">&#127970;</span> SME Loan Agent
+      <span class="nav-badge">UC3</span>
+    </div>
+
+    <div class="nav-group">Intelligence Layer</div>
+    <div class="nav-item" onclick="navigate('personalization')">
+      <span class="nav-icon">&#129504;</span> Hyper-Personalization
+    </div>
+
+    <div class="nav-group">Execution Layer</div>
+    <div class="nav-item" onclick="navigate('autonomous')">
+      <span class="nav-icon">&#9881;</span> Autonomous Operations
+    </div>
+
+    <div class="nav-group">Integration</div>
+    <div class="nav-item" onclick="navigate('journey')">
+      <span class="nav-icon">&#128260;</span> E2E Journey View
+    </div>
+  </nav>
+</aside>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+  <div class="topbar">
+    <h1 id="pageTitle">Home Dashboard</h1>
+    <div class="topbar-meta">SCBX AI Program &mdash; Sandbox Demo &mdash; Customer Centric Sales &amp; Services</div>
+  </div>
+
+  <!-- ===== HOME ===== -->
+  <div id="home" class="page active">
+    <div class="grid g4" style="margin-bottom:24px">
+      <div class="card stat"><div class="stat-val">15.4M</div><div class="stat-label">SCB EASY Users</div><div class="stat-change up">+12% YoY</div></div>
+      <div class="card stat"><div class="stat-val">81%</div><div class="stat-label">Monthly Active Rate</div><div class="stat-change up">+5pp</div></div>
+      <div class="card stat"><div class="stat-val">THB 3.3T</div><div class="stat-label">Total Assets</div><div class="stat-change up">+3.2%</div></div>
+      <div class="card stat"><div class="stat-val">38.5%</div><div class="stat-label">Cost-to-Income</div><div class="stat-change up">Lowest in Thailand</div></div>
+    </div>
+
+    <div class="grid g3">
+      <div class="card" style="cursor:pointer" onclick="navigate('uc1')">
+        <div class="card-header">
+          <div class="card-icon" style="background:#fef2f2">&#128179;</div>
+          <div>
+            <h3>UC1: Card Dispute Agent</h3>
+            <span class="tag tag-red">Service</span>
+          </div>
+        </div>
+        <p>AI voice+text agent handles credit card dispute filing, document collection, and resolution autonomously in Thai. Targets 80% call deflection.</p>
+        <div style="margin-top:12px">
+          <div style="font-size:11px;color:var(--text2);margin-bottom:4px">Automation Rate</div>
+          <div class="progress"><div class="progress-fill" style="width:82%"></div></div>
+          <div style="font-size:11px;color:var(--scb-purple);font-weight:600;margin-top:2px">82% containment</div>
+        </div>
+      </div>
+
+      <div class="card" style="cursor:pointer" onclick="navigate('uc2')">
+        <div class="card-header">
+          <div class="card-icon" style="background:#ecfdf5">&#128176;</div>
+          <div>
+            <h3>UC2: Wealth Advisory Agent</h3>
+            <span class="tag tag-green">Sales</span>
+          </div>
+        </div>
+        <p>24/7 digital RM provides portfolio briefing, personalized product recommendations, and seamless human handoff for complex wealth needs.</p>
+        <div style="margin-top:12px">
+          <div style="font-size:11px;color:var(--text2);margin-bottom:4px">Product Attach Rate</div>
+          <div class="progress"><div class="progress-fill" style="width:34%"></div></div>
+          <div style="font-size:11px;color:var(--scb-purple);font-weight:600;margin-top:2px">34% conversion</div>
+        </div>
+      </div>
+
+      <div class="card" style="cursor:pointer" onclick="navigate('uc3')">
+        <div class="card-header">
+          <div class="card-icon" style="background:var(--accent-light)">&#127970;</div>
+          <div>
+            <h3>UC3: SME Loan Agent</h3>
+            <span class="tag tag-blue">Sales + Service</span>
+          </div>
+        </div>
+        <p>Conversational AI guides SME owners through loan application — collects docs, pre-qualifies, and auto-submits. No branch visit needed.</p>
+        <div style="margin-top:12px">
+          <div style="font-size:11px;color:var(--text2);margin-bottom:4px">App-to-Approval Time</div>
+          <div class="progress"><div class="progress-fill" style="width:70%"></div></div>
+          <div style="font-size:11px;color:var(--scb-purple);font-weight:600;margin-top:2px">4 hrs (from 5 days)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid g2" style="margin-top:20px">
+      <div class="card" style="cursor:pointer" onclick="navigate('personalization')">
+        <div class="card-header">
+          <div class="card-icon" style="background:#f0e6ff">&#129504;</div>
+          <h3>Hyper-Personalization Engine</h3>
+        </div>
+        <p>Digital Twin, NBA Engine, Nudge Library, Value Optimizer, Channel Orchestrator, and Context Engine — the intelligence layer that powers all three use cases.</p>
+        <div style="margin-top:10px">
+          <span class="tag tag-purple">Digital Twin</span>
+          <span class="tag tag-purple">NBA</span>
+          <span class="tag tag-purple">Nudge Library</span>
+          <span class="tag tag-purple">Channel Orchestrator</span>
+        </div>
+      </div>
+      <div class="card" style="cursor:pointer" onclick="navigate('autonomous')">
+        <div class="card-header">
+          <div class="card-icon" style="background:var(--warning-bg)">&#9881;</div>
+          <h3>Autonomous Operations</h3>
+        </div>
+        <p>AI coworker executes multi-step workflows with confidence scoring, explainability, and human-in-the-loop controls. The execution engine behind the agentic experience.</p>
+        <div style="margin-top:10px">
+          <span class="tag tag-gold">Workflow Orchestration</span>
+          <span class="tag tag-gold">Confidence Scoring</span>
+          <span class="tag tag-gold">HITL</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== UC1: CARD DISPUTE ===== -->
+  <div id="uc1" class="page">
+    <div class="grid g2">
+      <div>
+        <div class="chat-container">
+          <div class="chat-header">
+            <span style="font-size:20px">&#129302;</span>
+            <div><h3>SCB Card Dispute Agent</h3><div style="font-size:11px;opacity:.7">Thai Voice + Text AI &bull; Powered by Typhoon</div></div>
+            <div class="chat-status"></div>
+          </div>
+          <div class="chat-messages" id="uc1Chat">
+            <div class="msg msg-ai">Hello! I'm your SCB AI assistant. I can help you with credit card disputes, balance inquiries, payment issues, and more. How can I help you today?</div>
+          </div>
+          <div class="quick-actions" id="uc1Quick">
+            <div class="quick-btn" onclick="uc1Send('I see a charge I don\'t recognize')">&#128269; Unknown charge</div>
+            <div class="quick-btn" onclick="uc1Send('I want to dispute a transaction')">&#9888; Dispute transaction</div>
+            <div class="quick-btn" onclick="uc1Send('Check my card balance')">&#128179; Card balance</div>
+          </div>
+          <div class="chat-input">
+            <input type="text" id="uc1Input" placeholder="Type your message..." onkeypress="if(event.key==='Enter')uc1Send()">
+            <button onclick="uc1Send()">Send</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:16px">
+          <h3 style="margin-bottom:12px">&#9881; Autonomous Workflow Status</h3>
+          <div class="workflow" id="uc1Workflow">
+            <div class="wf-step done"><div class="wf-circle">&#10003;</div><div class="wf-label">Intake</div><div class="wf-detail">Auto-captured</div></div>
+            <div class="wf-step active"><div class="wf-circle">&#128196;</div><div class="wf-label">Doc Collection</div><div class="wf-detail">In progress</div></div>
+            <div class="wf-step"><div class="wf-circle">&#128270;</div><div class="wf-label">Data Extract</div><div class="wf-detail">Pending</div></div>
+            <div class="wf-step"><div class="wf-circle">&#9878;</div><div class="wf-label">Rules Check</div><div class="wf-detail">Pending</div></div>
+            <div class="wf-step"><div class="wf-circle">&#10003;</div><div class="wf-label">Decision</div><div class="wf-detail">Pending</div></div>
+            <div class="wf-step"><div class="wf-circle">&#128276;</div><div class="wf-label">Follow-up</div><div class="wf-detail">Pending</div></div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:16px">
+          <h3 style="margin-bottom:12px">&#129504; AI Confidence Scoring</h3>
+          <div style="margin-bottom:10px">
+            <div style="display:flex;justify-content:space-between;font-size:12px"><span>Intent Detection</span><span style="font-weight:700;color:var(--success)">96%</span></div>
+            <div class="conf-bar"><div class="conf-fill conf-high" style="width:96%"></div></div>
+          </div>
+          <div style="margin-bottom:10px">
+            <div style="display:flex;justify-content:space-between;font-size:12px"><span>Transaction Match</span><span style="font-weight:700;color:var(--success)">92%</span></div>
+            <div class="conf-bar"><div class="conf-fill conf-high" style="width:92%"></div></div>
+          </div>
+          <div style="margin-bottom:10px">
+            <div style="display:flex;justify-content:space-between;font-size:12px"><span>Dispute Category</span><span style="font-weight:700;color:var(--warning)">78%</span></div>
+            <div class="conf-bar"><div class="conf-fill conf-med" style="width:78%"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:12px"><span>Auto-Resolution Eligibility</span><span style="font-weight:700;color:var(--success)">89%</span></div>
+            <div class="conf-bar"><div class="conf-fill conf-high" style="width:89%"></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3 style="margin-bottom:10px">&#128200; Live Metrics</h3>
+          <div class="grid g2" style="gap:10px">
+            <div class="stat" style="padding:10px"><div class="stat-val" style="font-size:20px">82%</div><div class="stat-label">Containment Rate</div></div>
+            <div class="stat" style="padding:10px"><div class="stat-val" style="font-size:20px">2.3 min</div><div class="stat-label">Avg Handle Time</div></div>
+            <div class="stat" style="padding:10px"><div class="stat-val" style="font-size:20px">4.6/5</div><div class="stat-label">CSAT Score</div></div>
+            <div class="stat" style="padding:10px"><div class="stat-val" style="font-size:20px">THB 85</div><div class="stat-label">Cost per Interaction</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== UC2: WEALTH ADVISORY ===== -->
+  <div id="uc2" class="page">
+    <div class="grid g2">
+      <div>
+        <div class="chat-container">
+          <div class="chat-header">
+            <span style="font-size:20px">&#128176;</span>
+            <div><h3>SCB Wealth Advisory Agent</h3><div style="font-size:11px;opacity:.7">Digital RM &bull; Personalized Investment Guidance</div></div>
+            <div class="chat-status"></div>
+          </div>
+          <div class="chat-messages" id="uc2Chat">
+            <div class="msg msg-ai">Good morning, Khun Somchai! I'm your SCB Digital Wealth Advisor. Your portfolio is up 3.2% this month. Would you like a portfolio review, market briefing, or product recommendations?</div>
+          </div>
+          <div class="quick-actions" id="uc2Quick">
+            <div class="quick-btn" onclick="uc2Send('Show my portfolio summary')">&#128202; Portfolio review</div>
+            <div class="quick-btn" onclick="uc2Send('Any recommendations for me?')">&#127919; Recommendations</div>
+            <div class="quick-btn" onclick="uc2Send('My FD matures next week')">&#128197; FD maturity</div>
+          </div>
+          <div class="chat-input">
+            <input type="text" id="uc2Input" placeholder="Ask your wealth advisor..." onkeypress="if(event.key==='Enter')uc2Send()">
+            <button onclick="uc2Send()">Send</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:16px">
+          <h3 style="margin-bottom:12px">&#128100; Client Digital Twin</h3>
+          <div class="twin-card">
+            <div class="twin-avatar">SC</div>
+            <div>
+              <div class="twin-name">Khun Somchai Chaiyanara</div>
+              <div class="twin-meta">SCB First Banking &bull; Age 42 &bull; Executive, Tech Industry</div>
+            </div>
+          </div>
+          <div class="trait-grid">
+            <div class="trait"><div class="trait-val">THB 8.5M</div><div class="trait-lbl">Total AUM</div></div>
+            <div class="trait"><div class="trait-val">Moderate</div><div class="trait-lbl">Risk Profile</div></div>
+            <div class="trait"><div class="trait-val">Growth</div><div class="trait-lbl">Life Stage</div></div>
+            <div class="trait"><div class="trait-val">72/100</div><div class="trait-lbl">Engagement</div></div>
+            <div class="trait"><div class="trait-val">0.85</div><div class="trait-lbl">Propensity</div></div>
+            <div class="trait"><div class="trait-val">LINE</div><div class="trait-lbl">Pref Channel</div></div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:16px">
+          <h3 style="margin-bottom:12px">&#127919; NBA Engine Recommendations</h3>
+          <table>
+            <thead><tr><th>Action</th><th>Product</th><th>Score</th><th>Channel</th></tr></thead>
+            <tbody>
+              <tr><td><span class="tag tag-green">Proactive</span></td><td>FD Reinvestment &rarr; Bond Fund</td><td><strong>0.92</strong></td><td>In-conversation</td></tr>
+              <tr><td><span class="tag tag-blue">Cross-sell</span></td><td>Health Insurance Top-up</td><td><strong>0.78</strong></td><td>LINE (Thu 7PM)</td></tr>
+              <tr><td><span class="tag tag-purple">Educate</span></td><td>Tax-saving Mutual Fund (LTF)</td><td><strong>0.71</strong></td><td>App notification</td></tr>
+              <tr><td><span class="tag tag-gold">Retain</span></td><td>SCB First Privilege Renewal</td><td><strong>0.65</strong></td><td>RM call</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card">
+          <h3 style="margin-bottom:10px">&#128202; Portfolio Snapshot</h3>
+          <table>
+            <thead><tr><th>Asset</th><th>Value</th><th>Allocation</th><th>Return</th></tr></thead>
+            <tbody>
+              <tr><td>Fixed Deposits</td><td>THB 3.2M</td><td>37%</td><td style="color:var(--success)">+2.1%</td></tr>
+              <tr><td>Equity Funds</td><td>THB 2.8M</td><td>33%</td><td style="color:var(--success)">+8.4%</td></tr>
+              <tr><td>Bond Funds</td><td>THB 1.5M</td><td>18%</td><td style="color:var(--success)">+3.7%</td></tr>
+              <tr><td>Insurance</td><td>THB 0.7M</td><td>8%</td><td style="color:var(--text2)">n/a</td></tr>
+              <tr><td>Gold</td><td>THB 0.3M</td><td>4%</td><td style="color:var(--success)">+12.1%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== UC3: SME LOAN ===== -->
+  <div id="uc3" class="page">
+    <div class="grid g2">
+      <div>
+        <div class="chat-container">
+          <div class="chat-header">
+            <span style="font-size:20px">&#127970;</span>
+            <div><h3>SCB SME Loan Agent</h3><div style="font-size:11px;opacity:.7">Quick Loan Application &bull; No Branch Visit</div></div>
+            <div class="chat-status"></div>
+          </div>
+          <div class="chat-messages" id="uc3Chat">
+            <div class="msg msg-ai">Welcome to SCB SME Quick Loan! I can help you apply for a business loan entirely through this conversation. No branch visit needed. Are you ready to get started?</div>
+          </div>
+          <div class="quick-actions" id="uc3Quick">
+            <div class="quick-btn" onclick="uc3Send('I need a working capital loan')">&#128181; Working capital</div>
+            <div class="quick-btn" onclick="uc3Send('How much can I borrow?')">&#128200; Pre-qualify me</div>
+            <div class="quick-btn" onclick="uc3Send('What documents do I need?')">&#128196; Required docs</div>
+          </div>
+          <div class="chat-input">
+            <input type="text" id="uc3Input" placeholder="Tell us about your business needs..." onkeypress="if(event.key==='Enter')uc3Send()">
+            <button onclick="uc3Send()">Send</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:16px">
+          <h3 style="margin-bottom:12px">&#9881; Loan Processing Pipeline</h3>
+          <div class="workflow" id="uc3Workflow">
+            <div class="wf-step done"><div class="wf-circle">&#10003;</div><div class="wf-label">Business Profile</div><div class="wf-detail">Collected</div></div>
+            <div class="wf-step active"><div class="wf-circle">&#128196;</div><div class="wf-label">Doc Upload</div><div class="wf-detail">In progress</div></div>
+            <div class="wf-step"><div class="wf-circle">&#128270;</div><div class="wf-label">AI Extraction</div><div class="wf-detail">Pending</div></div>
+            <div class="wf-step"><div class="wf-circle">&#9878;</div><div class="wf-label">Pre-Qualify</div><div class="wf-detail">Pending</div></div>
+            <div class="wf-step"><div class="wf-circle">&#128100;</div><div class="wf-label">Credit Review</div><div class="wf-detail">Pending</div></div>
+            <div class="wf-step"><div class="wf-circle">&#10003;</div><div class="wf-label">Approval</div><div class="wf-detail">Pending</div></div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:16px">
+          <h3 style="margin-bottom:12px">&#128100; Business Profile (AI-Extracted)</h3>
+          <table>
+            <tbody>
+              <tr><td style="font-weight:600;width:40%">Business Name</td><td>Siam Fresh Foods Co., Ltd.</td></tr>
+              <tr><td style="font-weight:600">Industry</td><td>Food & Beverage Manufacturing</td></tr>
+              <tr><td style="font-weight:600">Years in Operation</td><td>7 years</td></tr>
+              <tr><td style="font-weight:600">Annual Revenue</td><td>THB 45M</td></tr>
+              <tr><td style="font-weight:600">Existing SCB Products</td><td>Business Current Account, Payroll</td></tr>
+              <tr><td style="font-weight:600">Requested Loan</td><td>THB 5M Working Capital</td></tr>
+              <tr><td style="font-weight:600">SCB Internal Rating</td><td><span class="tag tag-green">Low Risk</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card">
+          <h3 style="margin-bottom:12px">&#128270; Document AI Extraction</h3>
+          <table>
+            <thead><tr><th>Document</th><th>Status</th><th>Confidence</th><th>Fields Extracted</th></tr></thead>
+            <tbody>
+              <tr><td>Tax Return (PND 50)</td><td><span class="tag tag-green">Extracted</span></td><td>94%</td><td>Revenue, Tax Paid, Net Income</td></tr>
+              <tr><td>Bank Statements (6 mo)</td><td><span class="tag tag-green">Extracted</span></td><td>97%</td><td>Avg Balance, Cash Flow, DSO</td></tr>
+              <tr><td>Business Registration</td><td><span class="tag tag-blue">Processing</span></td><td>--</td><td>--</td></tr>
+              <tr><td>Financial Statements</td><td><span class="tag tag-gold">Awaiting</span></td><td>--</td><td>--</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== HYPER-PERSONALIZATION ===== -->
+  <div id="personalization" class="page">
+    <div class="grid g3" style="margin-bottom:20px">
+      <div class="card stat"><div class="stat-val">4.2M</div><div class="stat-label">Digital Twins Active</div><div class="stat-change up">Real-time updated</div></div>
+      <div class="card stat"><div class="stat-val">128</div><div class="stat-label">Nudge Templates</div><div class="stat-change up">Across 14 categories</div></div>
+      <div class="card stat"><div class="stat-val">2.3M</div><div class="stat-label">NBA Actions/Day</div><div class="stat-change up">+45% from baseline</div></div>
+    </div>
+
+    <div class="grid g2" style="margin-bottom:20px">
+      <div class="card">
+        <h3 style="margin-bottom:16px">&#129504; Digital Twin — Sample Customer</h3>
+        <div class="twin-card">
+          <div class="twin-avatar">PM</div>
+          <div>
+            <div class="twin-name">Khun Priya Manoban</div>
+            <div class="twin-meta">Mass Retail &bull; Age 29 &bull; Marketing Manager</div>
+          </div>
+        </div>
+        <div class="trait-grid" style="margin-top:16px">
+          <div class="trait"><div class="trait-val">THB 450K</div><div class="trait-lbl">Savings</div></div>
+          <div class="trait"><div class="trait-val">Cautious</div><div class="trait-lbl">Risk Profile</div></div>
+          <div class="trait"><div class="trait-val">Early Career</div><div class="trait-lbl">Life Stage</div></div>
+          <div class="trait"><div class="trait-val">88/100</div><div class="trait-lbl">Digital Engage</div></div>
+          <div class="trait"><div class="trait-val">Home Buyer</div><div class="trait-lbl">Next Goal</div></div>
+          <div class="trait"><div class="trait-val">App Push</div><div class="trait-lbl">Best Channel</div></div>
+        </div>
+        <div style="margin-top:16px">
+          <div style="font-size:12px;font-weight:700;color:var(--scb-purple);margin-bottom:8px">Behavioral Signals</div>
+          <span class="tag tag-purple">Browsed mortgage rates 3x this week</span>
+          <span class="tag tag-blue">Increased savings transfer by 20%</span>
+          <span class="tag tag-green">Opened insurance comparison page</span>
+          <span class="tag tag-gold">Salary credited 2 days ago</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3 style="margin-bottom:16px">&#127919; NBA Engine Output — Khun Priya</h3>
+        <table>
+          <thead><tr><th>#</th><th>Action</th><th>Score</th><th>Channel</th><th>Timing</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td><strong>Home Loan Pre-Approval Nudge</strong><br><span style="font-size:11px;color:var(--text2)">She's actively researching; high propensity</span></td><td><strong style="color:var(--success)">0.94</strong></td><td>App Push</td><td>Today 6 PM</td></tr>
+            <tr><td>2</td><td><strong>Savings Goal Setup</strong><br><span style="font-size:11px;color:var(--text2)">Nudge to create a "Home Down Payment" goal</span></td><td><strong style="color:var(--success)">0.87</strong></td><td>In-app</td><td>Next login</td></tr>
+            <tr><td>3</td><td><strong>Home Insurance Bundle</strong><br><span style="font-size:11px;color:var(--text2)">Cross-sell with mortgage; browsed insurance</span></td><td><strong style="color:var(--warning)">0.72</strong></td><td>LINE</td><td>After mortgage action</td></tr>
+            <tr><td>4</td><td><strong>Financial Health Tip</strong><br><span style="font-size:11px;color:var(--text2)">"Your debt-to-income ratio is strong for a mortgage"</span></td><td><strong style="color:var(--warning)">0.68</strong></td><td>App Push</td><td>Sat morning</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="grid g3" style="margin-bottom:20px">
+      <div class="card">
+        <h3 style="margin-bottom:12px">&#128218; Nudge Library (Sample)</h3>
+        <table>
+          <thead><tr><th>Category</th><th>Nudge</th><th>Trigger</th></tr></thead>
+          <tbody>
+            <tr><td><span class="tag tag-green">Financial Health</span></td><td>"You spent 15% more on dining this month"</td><td>Spending spike</td></tr>
+            <tr><td><span class="tag tag-blue">Product</span></td><td>"3 peers in your bracket started SIPs"</td><td>Peer benchmark</td></tr>
+            <tr><td><span class="tag tag-purple">Education</span></td><td>"Here's how compound interest works for you"</td><td>New saver</td></tr>
+            <tr><td><span class="tag tag-gold">Retention</span></td><td>"We noticed you haven't used rewards — here's how"</td><td>Dormancy signal</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h3 style="margin-bottom:12px">&#128225; Channel Orchestrator</h3>
+        <table>
+          <thead><tr><th>Channel</th><th>Open Rate</th><th>Best Time</th><th>Cost</th></tr></thead>
+          <tbody>
+            <tr><td><strong>App Push</strong></td><td style="color:var(--success);font-weight:600">68%</td><td>6-8 PM</td><td>THB 0.1</td></tr>
+            <tr><td><strong>LINE</strong></td><td style="color:var(--success);font-weight:600">72%</td><td>7-9 PM</td><td>THB 0.5</td></tr>
+            <tr><td><strong>SMS</strong></td><td>34%</td><td>10 AM</td><td>THB 1.5</td></tr>
+            <tr><td><strong>Email</strong></td><td>22%</td><td>9 AM</td><td>THB 0.3</td></tr>
+            <tr><td><strong>Voice (AI)</strong></td><td style="color:var(--success);font-weight:600">85%</td><td>Inbound</td><td>THB 15</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h3 style="margin-bottom:12px">&#128301; Value Optimizer</h3>
+        <div style="margin-bottom:16px">
+          <div style="font-size:12px;font-weight:600;margin-bottom:4px">Customer Lifetime Value: <span style="color:var(--success)">THB 185K</span></div>
+          <div class="conf-bar"><div class="conf-fill conf-high" style="width:74%"></div></div>
+        </div>
+        <div style="margin-bottom:16px">
+          <div style="font-size:12px;font-weight:600;margin-bottom:4px">Churn Risk: <span style="color:var(--success)">Low (12%)</span></div>
+          <div class="conf-bar"><div class="conf-fill conf-high" style="width:12%"></div></div>
+        </div>
+        <div style="margin-bottom:16px">
+          <div style="font-size:12px;font-weight:600;margin-bottom:4px">Wallet Share Opportunity: <span style="color:var(--warning)">+35%</span></div>
+          <div class="conf-bar"><div class="conf-fill conf-med" style="width:65%"></div></div>
+        </div>
+        <div style="padding:10px;background:#f0e6ff;border-radius:8px;font-size:12px;color:var(--scb-purple)">
+          <strong>Optimizer Decision:</strong> Prioritize mortgage conversion (high LTV uplift). Defer credit card push (low marginal value). Sequence: Home Loan &rarr; Insurance &rarr; SIP.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== AUTONOMOUS OPS ===== -->
+  <div id="autonomous" class="page">
+    <div class="grid g3" style="margin-bottom:20px">
+      <div class="card stat"><div class="stat-val">847</div><div class="stat-label">Tasks Processed Today</div><div class="stat-change up">+32% automated</div></div>
+      <div class="card stat"><div class="stat-val">91.3%</div><div class="stat-label">Avg Confidence Score</div><div class="stat-change up">Above 85% threshold</div></div>
+      <div class="card stat"><div class="stat-val">14</div><div class="stat-label">HITL Escalations</div><div class="stat-change down">1.7% escalation rate</div></div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px">
+      <h3 style="margin-bottom:16px">&#9881; Live Workflow: Credit Card Dispute #DSP-20260402-1847</h3>
+      <div class="workflow" id="autoWorkflow">
+        <div class="wf-step done" id="aw1"><div class="wf-circle">&#10003;</div><div class="wf-label">Intake</div><div class="wf-detail">Auto | 0.3s</div></div>
+        <div class="wf-step done" id="aw2"><div class="wf-circle">&#10003;</div><div class="wf-label">Doc Collection</div><div class="wf-detail">Auto | 12s</div></div>
+        <div class="wf-step done" id="aw3"><div class="wf-circle">&#10003;</div><div class="wf-label">AI Extraction</div><div class="wf-detail">Conf: 94%</div></div>
+        <div class="wf-step active" id="aw4"><div class="wf-circle">&#9878;</div><div class="wf-label">Rules Check</div><div class="wf-detail">Processing...</div></div>
+        <div class="wf-step" id="aw5"><div class="wf-circle">&#10003;</div><div class="wf-label">Decision</div><div class="wf-detail">Pending</div></div>
+        <div class="wf-step" id="aw6"><div class="wf-circle">&#128276;</div><div class="wf-label">Follow-up</div><div class="wf-detail">Pending</div></div>
+      </div>
+      <div style="text-align:center;margin-top:16px">
+        <button onclick="runAutoWorkflow()" style="background:var(--scb-purple);color:#fff;border:none;border-radius:8px;padding:10px 24px;font-size:13px;font-weight:600;cursor:pointer">&#9654; Simulate Full Workflow</button>
+      </div>
+    </div>
+
+    <div class="grid g2" style="margin-bottom:20px">
+      <div class="card">
+        <h3 style="margin-bottom:12px">&#128196; AI Coworker — Document Extraction</h3>
+        <table>
+          <thead><tr><th>Field</th><th>Extracted Value</th><th>Confidence</th><th>Source</th></tr></thead>
+          <tbody>
+            <tr><td>Transaction Date</td><td>28 Mar 2026</td><td><span class="tag tag-green">98%</span></td><td>Card statement</td></tr>
+            <tr><td>Merchant</td><td>GLOBALSHOP*ONLINE</td><td><span class="tag tag-green">96%</span></td><td>Card statement</td></tr>
+            <tr><td>Amount</td><td>THB 4,850.00</td><td><span class="tag tag-green">99%</span></td><td>Card statement</td></tr>
+            <tr><td>Dispute Reason</td><td>Unauthorized transaction</td><td><span class="tag tag-green">92%</span></td><td>Customer input</td></tr>
+            <tr><td>Visa Reason Code</td><td>10.4 — Fraud</td><td><span class="tag tag-gold">78%</span></td><td>AI classification</td></tr>
+            <tr><td>Customer Since</td><td>2019 (7 years)</td><td><span class="tag tag-green">100%</span></td><td>CRM</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h3 style="margin-bottom:12px">&#9878; Rules Engine Decision</h3>
+        <table>
+          <thead><tr><th>Rule</th><th>Result</th><th>Detail</th></tr></thead>
+          <tbody>
+            <tr><td>Amount within auto-approve limit</td><td><span class="tag tag-green">PASS</span></td><td>&lt; THB 10,000 threshold</td></tr>
+            <tr><td>Customer tenure &gt; 1 year</td><td><span class="tag tag-green">PASS</span></td><td>7 years</td></tr>
+            <tr><td>No prior disputes in 12 months</td><td><span class="tag tag-green">PASS</span></td><td>Clean history</td></tr>
+            <tr><td>Fraud pattern match</td><td><span class="tag tag-gold">FLAG</span></td><td>Merchant on watchlist</td></tr>
+            <tr><td>Overall confidence &gt; 85%</td><td><span class="tag tag-green">PASS</span></td><td>Composite: 92%</td></tr>
+          </tbody>
+        </table>
+        <div style="margin-top:12px;padding:12px;background:var(--success-bg);border-radius:8px;font-size:13px">
+          <strong style="color:var(--success)">&#10003; AUTO-APPROVED</strong> — Provisional credit THB 4,850 issued. Chargeback initiated with Visa. Customer notified via app.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:12px">&#128202; Bank-Wide Process Prioritization (SOW Requirement)</h3>
+      <table>
+        <thead><tr><th>Process</th><th>Volume/Day</th><th>Current FTE</th><th>Automation %</th><th>Est. Savings</th><th>Priority</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Card Disputes</strong></td><td>2,400</td><td>120</td><td><div class="progress" style="width:100px;display:inline-block;vertical-align:middle"><div class="progress-fill" style="width:82%"></div></div> 82%</td><td>THB 180M/yr</td><td><span class="tag tag-red">P1 Sandbox</span></td></tr>
+          <tr><td><strong>Loan Origination</strong></td><td>800</td><td>200</td><td><div class="progress" style="width:100px;display:inline-block;vertical-align:middle"><div class="progress-fill" style="width:65%"></div></div> 65%</td><td>THB 250M/yr</td><td><span class="tag tag-red">P1 Sandbox</span></td></tr>
+          <tr><td><strong>Account Servicing</strong></td><td>8,500</td><td>300</td><td><div class="progress" style="width:100px;display:inline-block;vertical-align:middle"><div class="progress-fill" style="width:90%"></div></div> 90%</td><td>THB 320M/yr</td><td><span class="tag tag-green">P1 Quick Win</span></td></tr>
+          <tr><td>KYC / Onboarding</td><td>1,200</td><td>80</td><td><div class="progress" style="width:100px;display:inline-block;vertical-align:middle"><div class="progress-fill" style="width:55%"></div></div> 55%</td><td>THB 120M/yr</td><td><span class="tag tag-blue">P2</span></td></tr>
+          <tr><td>Collections</td><td>3,000</td><td>150</td><td><div class="progress" style="width:100px;display:inline-block;vertical-align:middle"><div class="progress-fill" style="width:48%"></div></div> 48%</td><td>THB 200M/yr</td><td><span class="tag tag-blue">P2</span></td></tr>
+          <tr><td>Trade Finance</td><td>200</td><td>60</td><td><div class="progress" style="width:100px;display:inline-block;vertical-align:middle"><div class="progress-fill" style="width:30%"></div></div> 30%</td><td>THB 90M/yr</td><td><span class="tag tag-gold">P3</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== E2E JOURNEY ===== -->
+  <div id="journey" class="page">
+    <div class="card" style="margin-bottom:20px;background:linear-gradient(135deg,var(--scb-purple-dark),var(--scb-purple));color:#fff;padding:28px">
+      <h3 style="color:var(--scb-gold);margin-bottom:8px">End-to-End Integrated Journey Demo</h3>
+      <p style="color:rgba(255,255,255,.8);font-size:14px">This view shows how a single customer interaction flows across all three workstreams — Conversational Banking as the interface, Hyper-Personalization as the intelligence, and Autonomous Operations as the execution engine.</p>
+      <button onclick="runJourney()" style="margin-top:16px;background:var(--scb-gold);color:var(--scb-purple-dark);border:none;border-radius:8px;padding:12px 28px;font-size:14px;font-weight:700;cursor:pointer">&#9654; Play Priya's Journey</button>
+    </div>
+
+    <div class="grid g3" style="margin-bottom:20px">
+      <div class="card" style="border-top:3px solid var(--scb-purple)">
+        <h3 style="margin-bottom:6px">&#128172; Conversational Banking</h3>
+        <p style="font-size:12px;margin-bottom:12px">Customer Interface Layer</p>
+        <div id="journeyConv" class="tl"></div>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent)">
+        <h3 style="margin-bottom:6px">&#129504; Hyper-Personalization</h3>
+        <p style="font-size:12px;margin-bottom:12px">Intelligence Layer</p>
+        <div id="journeyPers" class="tl"></div>
+      </div>
+      <div class="card" style="border-top:3px solid var(--scb-gold)">
+        <h3 style="margin-bottom:6px">&#9881; Autonomous Operations</h3>
+        <p style="font-size:12px;margin-bottom:12px">Execution Layer</p>
+        <div id="journeyAuto" class="tl"></div>
+      </div>
+    </div>
+
+    <div class="card" id="journeyOutcome" style="display:none;background:var(--success-bg);border:1px solid #bbf7d0">
+      <h3 style="color:var(--success);margin-bottom:10px">&#10003; Journey Complete — Outcome Summary</h3>
+      <div class="grid g4">
+        <div class="stat" style="padding:10px"><div class="stat-val" style="font-size:18px;color:var(--success)">2.3 min</div><div class="stat-label">Total Resolution Time</div></div>
+        <div class="stat" style="padding:10px"><div class="stat-val" style="font-size:18px;color:var(--success)">0</div><div class="stat-label">Human Handoffs</div></div>
+        <div class="stat" style="padding:10px"><div class="stat-val" style="font-size:18px;color:var(--success)">92%</div><div class="stat-label">AI Confidence</div></div>
+        <div class="stat" style="padding:10px"><div class="stat-val" style="font-size:18px;color:var(--success)">THB 85</div><div class="stat-label">Cost (vs THB 350 manual)</div></div>
+      </div>
+      <p style="margin-top:12px;font-size:13px;color:var(--text2)">Priya's dispute was resolved end-to-end without human intervention. The personalization engine suppressed a sales nudge due to the active service context and scheduled it for next week instead — optimizing for customer experience over short-term conversion.</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ===== NAVIGATION =====
+function navigate(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const titles = {home:'Home Dashboard',uc1:'UC1: Credit Card Dispute Agent',uc2:'UC2: Wealth Advisory Agent',uc3:'UC3: SME Quick Loan Agent',personalization:'Hyper-Personalization Engine',autonomous:'Autonomous Operations',journey:'End-to-End Integrated Journey'};
+  document.getElementById('pageTitle').textContent = titles[id] || 'Dashboard';
+  const items = document.querySelectorAll('.nav-item');
+  const map = {home:0,uc1:1,uc2:2,uc3:3,personalization:4,autonomous:5,journey:6};
+  if(map[id] !== undefined) items[map[id]].classList.add('active');
+}
+
+// ===== CHAT HELPERS =====
+function addMsg(chatId, text, type, delay) {
+  return new Promise(resolve => {
+    const chat = document.getElementById(chatId);
+    if (delay) {
+      const typing = document.createElement('div');
+      typing.className = 'typing';
+      typing.innerHTML = '<span></span><span></span><span></span>';
+      chat.appendChild(typing);
+      chat.scrollTop = chat.scrollHeight;
+      setTimeout(() => {
+        typing.remove();
+        const div = document.createElement('div');
+        div.className = 'msg msg-' + type;
+        div.innerHTML = text;
+        chat.appendChild(div);
+        chat.scrollTop = chat.scrollHeight;
+        resolve();
+      }, delay);
+    } else {
+      const div = document.createElement('div');
+      div.className = 'msg msg-' + type;
+      div.innerHTML = text;
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+      resolve();
+    }
+  });
+}
+
+function addAction(chatId, title, text, delay) {
+  return new Promise(resolve => {
+    const chat = document.getElementById(chatId);
+    setTimeout(() => {
+      const div = document.createElement('div');
+      div.className = 'msg msg-action';
+      div.innerHTML = `<div class="action-title">${title}</div><div style="font-size:12.5px;color:var(--text2)">${text}</div>`;
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+      resolve();
+    }, delay || 500);
+  });
+}
+
+// ===== UC1: CARD DISPUTE =====
+let uc1Step = 0;
+const uc1Flow = [
+  { user: null, ai: "I understand you'd like to report an unrecognized charge. Let me pull up your recent card transactions.\n\n<strong>Card ending ****8847</strong> — I see 5 transactions in the last 7 days. Can you tell me which transaction looks suspicious?", action: null },
+  { user: null, ai: "I found a charge from <strong>GLOBALSHOP*ONLINE</strong> for <strong>THB 4,850</strong> on March 28. Is this the transaction you'd like to dispute?", action: { title: "&#128270; Transaction Identified", text: "Merchant: GLOBALSHOP*ONLINE | Amount: THB 4,850 | Date: 28 Mar 2026" } },
+  { user: null, ai: "I'll file this dispute for you right away. Based on your description, I'm classifying this as an <strong>unauthorized transaction (Visa Code 10.4)</strong>.\n\nI'm provisionally crediting THB 4,850 to your account while we investigate. You should see the credit within 24 hours.", action: { title: "&#9881; Autonomous Action Triggered", text: "Dispute filed | Provisional credit: THB 4,850 | Chargeback initiated with Visa network | Est. resolution: 10 business days" } },
+  { user: null, ai: "Your dispute <strong>#DSP-20260402-1847</strong> has been filed and is being processed. Here's what happens next:\n\n1. Provisional credit within 24 hours\n2. Investigation update at Day 3\n3. Resolution expected by April 12\n\nI'll send you updates via the app. Is there anything else I can help with?", action: { title: "&#10003; Resolution Complete", text: "Total time: 2 min 18 sec | No human handoff required | Confidence: 92% | Cost: THB 85 (vs THB 350 call center)" } },
+];
+
+async function uc1Send(text) {
+  const input = document.getElementById('uc1Input');
+  const msg = text || input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  await addMsg('uc1Chat', msg, 'user', 0);
+  if (uc1Step < uc1Flow.length) {
+    const step = uc1Flow[uc1Step];
+    await addMsg('uc1Chat', step.ai, 'ai', 1200);
+    if (step.action) await addAction('uc1Chat', step.action.title, step.action.text, 600);
+    uc1Step++;
+  } else {
+    await addMsg('uc1Chat', "Is there anything else I can help you with today? I can check balances, manage payments, or help with other card services.", 'ai', 800);
+  }
+}
+
+// ===== UC2: WEALTH ADVISORY =====
+let uc2Step = 0;
+const uc2Flow = [
+  { ai: "Here's your portfolio overview as of today:\n\n<strong>Total AUM: THB 8.5M</strong> (+3.2% this month)\n\n&#128200; <strong>Equity Funds:</strong> THB 2.8M (+8.4%)\n&#128176; <strong>Fixed Deposits:</strong> THB 3.2M (+2.1%)\n&#128196; <strong>Bond Funds:</strong> THB 1.5M (+3.7%)\n&#128737; <strong>Insurance:</strong> THB 0.7M\n&#129689; <strong>Gold:</strong> THB 0.3M (+12.1%)\n\nYour portfolio is well-diversified. I notice your fixed deposit of <strong>THB 1.2M matures next Tuesday</strong>. Would you like to discuss reinvestment options?", action: { title: "&#129504; NBA Engine Activated", text: "FD maturity detected | 3 reinvestment options prepared | Propensity score: 0.92 | Recommended: Bond Fund migration" } },
+  { ai: "Great question! Based on your risk profile and current market conditions, here are my top 3 recommendations:\n\n<strong>1. SCB Income Plus Fund</strong> — Bond fund, expected 4.2% yield\n   Best for: Stable income with low risk &#128994;\n\n<strong>2. SCB SET Index Fund</strong> — Equity fund, 12-month target +10-15%\n   Best for: Growth with moderate risk &#128992;\n\n<strong>3. Split Strategy</strong> — 60% bonds / 40% equity\n   Best for: Balanced growth &#128993;\n\nGiven your moderate risk profile and growth life stage, I'd recommend Option 3. Shall I set this up, or would you prefer to speak with your RM?", action: { title: "&#127919; Personalized Recommendation", text: "Risk-matched to profile | Tax implications calculated | Split strategy optimizes Sharpe ratio for this client segment" } },
+  { ai: "I'll set up the split strategy for your maturing FD:\n\n&#10003; <strong>THB 720K</strong> &rarr; SCB Income Plus Fund\n&#10003; <strong>THB 480K</strong> &rarr; SCB SET Index Fund\n\nThe transfer will execute automatically on maturity date (next Tuesday). You'll receive a confirmation in the app.\n\nI also noticed you haven't reviewed your health insurance in 2 years. Would you like me to run a coverage check? Many clients in your bracket have upgraded to include critical illness coverage.", action: { title: "&#9881; Autonomous Execution Queued", text: "FD auto-reinvestment scheduled | Fund subscription forms auto-filled | e-KYC verified | Compliance check: PASS" } },
+];
+
+async function uc2Send(text) {
+  const input = document.getElementById('uc2Input');
+  const msg = text || input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  await addMsg('uc2Chat', msg, 'user', 0);
+  if (uc2Step < uc2Flow.length) {
+    const step = uc2Flow[uc2Step];
+    await addMsg('uc2Chat', step.ai, 'ai', 1500);
+    if (step.action) await addAction('uc2Chat', step.action.title, step.action.text, 600);
+    uc2Step++;
+  } else {
+    await addMsg('uc2Chat', "I'm here whenever you need portfolio advice, market updates, or help with any SCB products. Your next scheduled review with your RM is on April 15.", 'ai', 800);
+  }
+}
+
+// ===== UC3: SME LOAN =====
+let uc3Step = 0;
+const uc3Flow = [
+  { ai: "I'd love to help you with working capital! Let me start by understanding your business.\n\nI can see from your SCB business account that you're <strong>Siam Fresh Foods Co., Ltd.</strong> — a food manufacturing company with 7 years of history with SCB.\n\nBased on your transaction history, your average monthly revenue is around <strong>THB 3.75M</strong>. How much working capital are you looking for, and what's the primary purpose?", action: { title: "&#129504; Context Engine Activated", text: "Business profile auto-loaded from CRM | Transaction history analyzed | Internal rating: Low Risk | Pre-qualified: Yes" } },
+  { ai: "THB 5M for inventory expansion — that's a solid growth move! Based on your profile, here's your <strong>instant pre-qualification</strong>:\n\n&#10003; <strong>Eligible Amount:</strong> Up to THB 8M\n&#10003; <strong>Suggested Loan:</strong> THB 5M\n&#10003; <strong>Rate:</strong> MRR - 0.5% (est. 5.75% p.a.)\n&#10003; <strong>Tenure:</strong> 3-5 years\n&#10003; <strong>Monthly Payment:</strong> ~THB 96K (5-year)\n\nTo proceed, I'll need 4 documents. You can photograph and upload them right here:\n1. Latest tax return (PND 50)\n2. 6-month bank statements\n3. Business registration certificate\n4. Recent financial statements\n\nShall I guide you through the upload?", action: { title: "&#128200; AI Pre-Qualification Complete", text: "Debt-to-income: 32% (healthy) | Cash flow coverage: 2.8x | Collateral: Not required below THB 5M | Auto-approval eligible" } },
+  { ai: "I've received your tax return and bank statements. My AI is extracting the key information now...\n\n&#10003; <strong>Tax Return:</strong> Revenue THB 45M, Net Income THB 4.2M — <span style='color:green'>Extracted (94% confidence)</span>\n&#10003; <strong>Bank Statements:</strong> Avg balance THB 2.1M, stable cash flow — <span style='color:green'>Extracted (97% confidence)</span>\n\nExcellent financials! Your application is looking very strong. Please upload the business registration and financial statements to complete the submission.\n\nOnce all documents are in, I expect a decision within <strong>4 hours</strong> — most of it automated.", action: { title: "&#9881; AI Document Extraction", text: "2/4 docs processed | 23 fields extracted | Confidence avg: 95.5% | Auto-fill: Application form populated | Credit model: Running..." } },
+];
+
+async function uc3Send(text) {
+  const input = document.getElementById('uc3Input');
+  const msg = text || input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  await addMsg('uc3Chat', msg, 'user', 0);
+  if (uc3Step < uc3Flow.length) {
+    const step = uc3Flow[uc3Step];
+    await addMsg('uc3Chat', step.ai, 'ai', 1500);
+    if (step.action) await addAction('uc3Chat', step.action.title, step.action.text, 600);
+    uc3Step++;
+  } else {
+    await addMsg('uc3Chat', "Your application is progressing well! I'll notify you as soon as the credit team completes the review. Expected decision: within 4 hours. No branch visit needed!", 'ai', 800);
+  }
+}
+
+// ===== AUTONOMOUS WORKFLOW SIMULATION =====
+function runAutoWorkflow() {
+  const steps = ['aw1','aw2','aw3','aw4','aw5','aw6'];
+  steps.forEach(s => { const el = document.getElementById(s); el.className = 'wf-step'; });
+  let i = 0;
+  const interval = setInterval(() => {
+    if (i > 0) { document.getElementById(steps[i-1]).className = 'wf-step done'; document.getElementById(steps[i-1]).querySelector('.wf-circle').innerHTML = '&#10003;'; }
+    if (i < steps.length) { document.getElementById(steps[i]).className = 'wf-step active'; }
+    else { clearInterval(interval); }
+    i++;
+  }, 1200);
+}
+
+// ===== E2E JOURNEY SIMULATION =====
+const journeySteps = [
+  { conv: { time: '0:00', title: 'Customer Opens App', desc: 'Priya opens SCB EASY and says: "I see a charge I don\'t recognize from last week."' }, pers: { time: '0:01', title: 'Context Engine Loads', desc: 'Pulls Priya\'s recent transactions, card type, prior interactions. Digital Twin: high-value wealth client, low complaint frequency.' }, auto: null },
+  { conv: { time: '0:15', title: 'Intent Classified', desc: 'AI identifies dispute intent. Asks Priya to confirm the specific transaction.' }, pers: { time: '0:15', title: 'Priority Flagged', desc: 'Value Optimizer flags: priority handling for high-LTV client. Suppress pending sales nudge.' }, auto: { time: '0:15', title: 'Workflow Initiated', desc: 'Dispute workflow #DSP-1847 created. Status: Intake.' } },
+  { conv: { time: '0:45', title: 'Transaction Confirmed', desc: 'Priya confirms GLOBALSHOP*ONLINE THB 4,850. Agent offers to file dispute immediately.' }, pers: null, auto: { time: '0:45', title: 'Doc Extraction', desc: 'AI extracts merchant, amount, date, reason code from statement. Confidence: 94%.' } },
+  { conv: { time: '1:20', title: 'Dispute Filed', desc: 'Agent confirms provisional credit and provides timeline. Sends confirmation to app + LINE.' }, pers: { time: '1:20', title: 'NBA Suppressed', desc: 'Insurance renewal nudge was queued for today — suppressed due to active service context. Rescheduled to next week via LINE.' }, auto: { time: '1:20', title: 'Auto-Approved', desc: 'Rules engine: all checks PASS. Provisional credit issued. Chargeback initiated with Visa.' } },
+  { conv: { time: '2:18', title: 'Conversation Closed', desc: 'Priya satisfied. No human handoff needed. Proactive updates scheduled at Day 3, 7, resolution.' }, pers: { time: '2:18', title: 'Twin Updated', desc: 'Digital Twin updated: dispute event logged, satisfaction signal positive, insurance nudge rescheduled.' }, auto: { time: '2:18', title: 'Follow-up Queued', desc: 'Auto status updates at Day 3, 7. Auto-close on network confirmation. Total cost: THB 85.' } },
+];
+
+function runJourney() {
+  const convEl = document.getElementById('journeyConv');
+  const persEl = document.getElementById('journeyPers');
+  const autoEl = document.getElementById('journeyAuto');
+  convEl.innerHTML = '';
+  persEl.innerHTML = '';
+  autoEl.innerHTML = '';
+  document.getElementById('journeyOutcome').style.display = 'none';
+
+  let i = 0;
+  const interval = setInterval(() => {
+    if (i >= journeySteps.length) {
+      clearInterval(interval);
+      setTimeout(() => { document.getElementById('journeyOutcome').style.display = 'block'; }, 500);
+      return;
+    }
+    const step = journeySteps[i];
+    if (step.conv) addTlItem(convEl, step.conv);
+    if (step.pers) addTlItem(persEl, step.pers);
+    if (step.auto) addTlItem(autoEl, step.auto);
+    i++;
+  }, 2000);
+}
+
+function addTlItem(container, data) {
+  const div = document.createElement('div');
+  div.className = 'tl-item fade-in';
+  div.innerHTML = `<div class="tl-time">${data.time}</div><div class="tl-title">${data.title}</div><div style="font-size:12px;color:var(--text2)">${data.desc}</div>`;
+  container.appendChild(div);
+}
+</script>
+</body>
+</html>

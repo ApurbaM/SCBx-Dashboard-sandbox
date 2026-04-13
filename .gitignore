@@ -1,0 +1,9 @@
+node_modules/
+__pycache__/
+*.mp4
+*.pdf
+*.pptx
+*.docx
+*.zip
+cc_frames/
+Figma make design system template/

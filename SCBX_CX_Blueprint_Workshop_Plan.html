@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCBX AI Program — CX Blueprint Workshop Plan</title>
+<style>
+:root{--purple:#4e2a84;--purple-light:#7b5ea7;--purple-dark:#2d1654;--gold:#c9a84c;--gold-light:#f5e6b8;--bg:#fafafa;--card:#fff;--text:#1a1a2e;--text2:#555;--border:#e8e8f0;--accent-bg:rgba(78,42,132,.04)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'SF Pro Display','Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.page{max-width:920px;margin:0 auto;padding:40px 32px 80px}
+
+/* Header */
+.header{text-align:center;padding:48px 0 40px;border-bottom:3px solid var(--purple)}
+.header .logo{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:16px}
+.header .logo-icon{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--purple),var(--gold));display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff}
+.header .logo-text{font-size:13px;text-transform:uppercase;letter-spacing:2px;color:var(--purple);font-weight:700}
+.header h1{font-size:32px;font-weight:800;color:var(--purple-dark);margin:8px 0;line-height:1.2}
+.header .subtitle{font-size:16px;color:var(--text2);max-width:600px;margin:0 auto}
+.header .meta{display:flex;justify-content:center;gap:24px;margin-top:20px;font-size:13px;color:var(--text2)}
+.header .meta span{display:flex;align-items:center;gap:6px}
+.header .meta .dot{width:6px;height:6px;border-radius:50%;background:var(--gold)}
+
+/* Section */
+.section{margin-top:48px}
+.section-num{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--gold);font-weight:700;margin-bottom:4px}
+.section h2{font-size:24px;font-weight:700;color:var(--purple-dark);margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid var(--border)}
+.section h3{font-size:18px;font-weight:700;color:var(--purple);margin:24px 0 10px}
+.section p,.section li{font-size:14.5px;color:var(--text);line-height:1.7}
+.section ul{padding-left:20px;margin:8px 0}
+.section li{margin-bottom:4px}
+
+/* LEAP Framework */
+.leap-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:24px 0}
+.leap-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px 20px;text-align:center;transition:all .2s;position:relative;overflow:hidden}
+.leap-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(78,42,132,.1)}
+.leap-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px}
+.leap-card:nth-child(1)::before{background:linear-gradient(90deg,#e74c3c,#c0392b)}
+.leap-card:nth-child(2)::before{background:linear-gradient(90deg,#3498db,#2980b9)}
+.leap-card:nth-child(3)::before{background:linear-gradient(90deg,var(--gold),#b8933d)}
+.leap-card:nth-child(4)::before{background:linear-gradient(90deg,#27ae60,#1e8449)}
+.leap-letter{font-size:42px;font-weight:800;color:var(--purple);opacity:.15;margin-bottom:4px}
+.leap-title{font-size:15px;font-weight:700;color:var(--purple-dark);margin-bottom:6px}
+.leap-desc{font-size:12px;color:var(--text2);line-height:1.5}
+
+/* Storyline */
+.story-flow{display:flex;flex-direction:column;gap:0;margin:24px 0;position:relative}
+.story-flow::before{content:'';position:absolute;left:23px;top:28px;bottom:28px;width:2px;background:linear-gradient(var(--purple),var(--gold))}
+.story-step{display:flex;gap:20px;align-items:flex-start;padding:16px 0}
+.story-dot{width:48px;height:48px;border-radius:50%;background:var(--card);border:3px solid var(--purple);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:var(--purple);flex-shrink:0;z-index:1;position:relative}
+.story-dot.gold{border-color:var(--gold);color:var(--gold)}
+.story-content{flex:1}
+.story-content .time{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--gold);font-weight:700}
+.story-content h4{font-size:16px;font-weight:700;color:var(--purple-dark);margin:2px 0 4px}
+.story-content p{font-size:13px;color:var(--text2);line-height:1.6}
+
+/* Agenda Table */
+.agenda{border-collapse:collapse;width:100%;margin:20px 0;font-size:13.5px}
+.agenda th{background:var(--purple);color:#fff;padding:12px 16px;text-align:left;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+.agenda td{padding:12px 16px;border-bottom:1px solid var(--border);vertical-align:top}
+.agenda tr:hover td{background:var(--accent-bg)}
+.agenda .time-col{font-weight:700;color:var(--purple);white-space:nowrap;width:100px}
+.agenda .phase-tag{display:inline-block;padding:2px 10px;border-radius:12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.phase-look{background:rgba(231,76,60,.1);color:#c0392b}
+.phase-explore{background:rgba(52,152,219,.1);color:#2980b9}
+.phase-act{background:rgba(201,168,76,.15);color:#9a7d2e}
+.phase-prove{background:rgba(39,174,96,.1);color:#1e8449}
+
+/* Cards */
+.card-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin:16px 0}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;transition:all .2s}
+.card:hover{box-shadow:0 4px 16px rgba(0,0,0,.06)}
+.card h5{font-size:14px;font-weight:700;color:var(--purple);margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.card p{font-size:12.5px;color:var(--text2);line-height:1.6}
+.card .icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+
+/* Journey cards */
+.journey-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin:12px 0}
+.journey-card .j-header{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.journey-card .j-num{width:36px;height:36px;border-radius:50%;background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0}
+.journey-card .j-title{font-size:15px;font-weight:700;color:var(--purple-dark)}
+.journey-card .j-sub{font-size:12px;color:var(--text2)}
+.journey-card ul{font-size:12.5px;padding-left:16px}
+.journey-card li{margin-bottom:2px}
+
+/* Callout */
+.callout{background:linear-gradient(135deg,rgba(78,42,132,.06),rgba(201,168,76,.06));border:1px solid rgba(78,42,132,.15);border-radius:14px;padding:20px 24px;margin:20px 0}
+.callout h5{font-size:14px;font-weight:700;color:var(--purple);margin-bottom:6px}
+.callout p{font-size:13px;color:var(--text2);line-height:1.6}
+
+/* Prework */
+.prework{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:16px 0}
+.prework-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center}
+.prework-item .pw-icon{font-size:24px;margin-bottom:8px}
+.prework-item h5{font-size:13px;font-weight:700;color:var(--purple-dark);margin-bottom:4px}
+.prework-item p{font-size:11px;color:var(--text2);line-height:1.5}
+
+/* Print */
+@media print{
+  .page{padding:20px}
+  .leap-card,.card,.journey-card{break-inside:avoid}
+  .story-step{break-inside:avoid}
+}
+@media(max-width:700px){
+  .leap-grid{grid-template-columns:repeat(2,1fr)}
+  .card-grid{grid-template-columns:1fr}
+  .prework{grid-template-columns:1fr}
+  .header h1{font-size:24px}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- ===== HEADER ===== -->
+<div class="header">
+  <div class="logo"><div class="logo-icon">&#9830;</div></div>
+  <div class="logo-text">McKinsey &amp; Company &times; SCBX</div>
+  <h1>CX Blueprint Workshop</h1>
+  <div class="subtitle">A one-day LEAP Blueprint sprint to co-design the AI-native customer experience for SCBX's Customer Centric Sales &amp; Services journey</div>
+  <div class="meta">
+    <span><span class="dot"></span> Full-day workshop (8 hours)</span>
+    <span><span class="dot"></span> SCB Leadership &amp; McKinsey team</span>
+    <span><span class="dot"></span> April 2026</span>
+  </div>
+</div>
+
+<!-- ===== 1. CONTEXT ===== -->
+<div class="section">
+  <div class="section-num">Section 01</div>
+  <h2>Why This Workshop, Why Now</h2>
+  <p>SCBX is transforming into an AI-first enterprise by 2028. The sandbox program (March&ndash;May 2026) must deliver production-grade, beta-ready POCs that reimagine customer engagement from first principles &mdash; not layer AI onto existing workflows. With the June 2026 sandbox deadline and Q3/Q4 go-to-market, the window to align on the CX blueprint is <strong>now</strong>.</p>
+
+  <div class="callout">
+    <h5>Workshop Objective</h5>
+    <p>In one day, co-design an end-to-end CX blueprint that integrates Conversational Banking, Hyper-Personalization, and Autonomous Operations into two flagship customer journeys &mdash; with clear architecture, data requirements, success metrics, and a 90-day delivery roadmap &mdash; using McKinsey's LEAP blueprint methodology.</p>
+  </div>
+
+  <h3>Scope: Two Integrated Journeys</h3>
+
+  <div class="journey-card">
+    <div class="j-header"><div class="j-num">J1</div><div><div class="j-title">Personal Banker Mode (75% of POC)</div><div class="j-sub">Engagement-first, hyper-personalized day-in-the-life with Jarvis</div></div></div>
+    <ul>
+      <li><strong>START:</strong> Personalized morning brief &mdash; financial wellness, nudges, next-best-actions</li>
+      <li><strong>DURING:</strong> Context-aware servicing &mdash; spend insights, portfolio, bill payments, smart offers</li>
+      <li><strong>END:</strong> Service-to-sales transitions &mdash; credit card upgrade, DCA investment, PointX redemption</li>
+    </ul>
+  </div>
+
+  <div class="journey-card">
+    <div class="j-header"><div class="j-num">J2</div><div><div class="j-title">Receptionist + Butler Mode (25% of POC)</div><div class="j-sub">Conversation-first seamless servicing with service-to-sales in every interaction</div></div></div>
+    <ul>
+      <li><strong>DURING:</strong> Tone, content personalization &amp; in-call NBA for top 3 service intents</li>
+      <li><strong>POST:</strong> Personalized next-best-actions (1&ndash;2 non-sales, 1 sales, 1 contextual to last conversation)</li>
+      <li><strong>OFFLINE:</strong> Personalized video engagement for retention and habit formation</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ===== 2. LEAP FRAMEWORK ===== -->
+<div class="section">
+  <div class="section-num">Section 02</div>
+  <h2>The LEAP Blueprint Framework</h2>
+  <p>McKinsey's LEAP methodology structures the day into four phases &mdash; each building on the last to move from insight to validated blueprint in a single sprint.</p>
+
+  <div class="leap-grid">
+    <div class="leap-card">
+      <div class="leap-letter">L</div>
+      <div class="leap-title">LOOK</div>
+      <div class="leap-desc">Understand the customer. Map current-state pain points, data signals, and opportunity spaces across both journeys.</div>
+    </div>
+    <div class="leap-card">
+      <div class="leap-letter">E</div>
+      <div class="leap-title">EXPLORE</div>
+      <div class="leap-desc">Ideate the future. Design "10x better" AI-native experiences for each journey touchpoint, unconstrained by today.</div>
+    </div>
+    <div class="leap-card">
+      <div class="leap-letter">A</div>
+      <div class="leap-title">ACT</div>
+      <div class="leap-desc">Architect the blueprint. Map the service blueprint end-to-end: frontstage, backstage, AI agents, data flows, HITL handoffs.</div>
+    </div>
+    <div class="leap-card">
+      <div class="leap-letter">P</div>
+      <div class="leap-title">PROVE</div>
+      <div class="leap-desc">Define success and next steps. Set KPIs, prioritize build sprints, assign owners, and lock the 90-day delivery plan.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 3. STORYLINE ===== -->
+<div class="section">
+  <div class="section-num">Section 03</div>
+  <h2>Workshop Storyline</h2>
+  <p>The day follows a dramatic arc &mdash; from grounding in reality, through creative tension, to a locked blueprint. Each phase has a clear "aha moment" that builds momentum.</p>
+
+  <div class="story-flow">
+    <div class="story-step">
+      <div class="story-dot">1</div>
+      <div class="story-content">
+        <div class="time">8:30 &mdash; Opening</div>
+        <h4>"The Moment of Truth"</h4>
+        <p>Open with a real customer call recording or anonymized service complaint that exposes the gap between what SCB EASY delivers today and what customers expect. Set the emotional anchor: <em>"This is why we're here."</em> Share global AI-banking benchmarks &mdash; DBS, Nubank, Cleo &mdash; to establish the competitive urgency.</p>
+      </div>
+    </div>
+    <div class="story-step">
+      <div class="story-dot">2</div>
+      <div class="story-content">
+        <div class="time">9:00 &mdash; LOOK phase</div>
+        <h4>"Walking in Eva's Shoes"</h4>
+        <p>Introduce Eva &mdash; a 31-year-old marketing manager, Wealth Potential segment. Walk through her actual day: morning commute, checking balances, paying bills, wondering about investments. Map her current journey on the wall &mdash; every friction point, every drop-off, every moment of confusion. The room sees the journey through the customer's eyes, not the bank's.</p>
+      </div>
+    </div>
+    <div class="story-step">
+      <div class="story-dot">3</div>
+      <div class="story-content">
+        <div class="time">10:30 &mdash; EXPLORE phase</div>
+        <h4>"What If Jarvis Knew You?"</h4>
+        <p>Live demo of the Morning Briefing prototype. The room sees Eva's personalized morning brief, her financial wellness score, Jarvis paying her bills, nudging a card upgrade. The creative tension: <em>"This is what's possible in 90 days. What else should Eva's ideal day look like?"</em> Breakout groups ideate 10x experiences for each touchpoint.</p>
+      </div>
+    </div>
+    <div class="story-step">
+      <div class="story-dot gold">4</div>
+      <div class="story-content">
+        <div class="time">1:00 &mdash; ACT phase</div>
+        <h4>"Building the Machine Behind the Magic"</h4>
+        <p>The hardest session. Teams architect the service blueprint: what the customer sees (frontstage), what the AI agents do (backstage), what data flows where, where humans step in. Map the 7-agent pipeline (Financial Health Scorer &rarr; Nudge Generator &rarr; Task Prioritizer &rarr; Insight Engine &rarr; Savings Advisor &rarr; Alert Engine &rarr; Conversational AI) against real SCB data systems.</p>
+      </div>
+    </div>
+    <div class="story-step">
+      <div class="story-dot gold">5</div>
+      <div class="story-content">
+        <div class="time">3:30 &mdash; PROVE phase</div>
+        <h4>"Making It Real"</h4>
+        <p>Shift from vision to execution. Define the KPIs that prove this works: DAU increase, lead volume, x-sell conversion, call center migration, NPS. Prioritize the 5 sandbox use cases. Lock sprint assignments. Walk out with a signed blueprint and 90-day plan, not just ideas.</p>
+      </div>
+    </div>
+    <div class="story-step">
+      <div class="story-dot">6</div>
+      <div class="story-content">
+        <div class="time">5:00 &mdash; Close</div>
+        <h4>"The Commitment"</h4>
+        <p>Each workstream lead presents their blueprint section to the Group CEO / sponsor. The room votes on the "north star" experience. Close with personal commitments: <em>"What will you do in the next 48 hours to make this real?"</em></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 4. DETAILED AGENDA ===== -->
+<div class="section">
+  <div class="section-num">Section 04</div>
+  <h2>Detailed Agenda</h2>
+
+  <table class="agenda">
+    <thead>
+      <tr><th>Time</th><th>Session</th><th>Format</th><th>Output</th></tr>
+    </thead>
+    <tbody>
+      <!-- Opening -->
+      <tr>
+        <td class="time-col">8:30&ndash;9:00</td>
+        <td>
+          <strong>Opening &amp; Ambition Setting</strong><br>
+          <span style="font-size:12px;color:var(--text2)">Welcome, program context, competitive urgency. Play a real customer call. Share global AI-banking benchmarks (DBS Digibank, Nubank, Cleo). Align on the day's objective: a locked CX blueprint by 5 PM.</span>
+        </td>
+        <td>Plenary</td>
+        <td>Shared burning platform; emotional anchor</td>
+      </tr>
+
+      <!-- LOOK -->
+      <tr style="background:rgba(231,76,60,.03)">
+        <td class="time-col">9:00&ndash;9:45</td>
+        <td>
+          <span class="phase-tag phase-look">LOOK</span><br>
+          <strong>Current-State Journey Mapping</strong><br>
+          <span style="font-size:12px;color:var(--text2)">Map Eva's current-state journey across SCB EASY, call center, and branch. Identify all touchpoints, channels, emotions, pain points, and drop-offs. Use real data: call center intent analysis (top 10 intents), branch visit drivers, app engagement metrics.</span>
+        </td>
+        <td>Wall exercise<br>(full room)</td>
+        <td>Current-state journey map on the wall with pain points flagged</td>
+      </tr>
+      <tr style="background:rgba(231,76,60,.03)">
+        <td class="time-col">9:45&ndash;10:15</td>
+        <td>
+          <span class="phase-tag phase-look">LOOK</span><br>
+          <strong>Data &amp; Signal Landscape</strong><br>
+          <span style="font-size:12px;color:var(--text2)">Map available data sources against journey moments: batch (Customer 360, transaction history, portfolio), near-real-time (clickstream, in-session signals, conversational cues), and unstructured (voice transcripts, RM notes). Identify gaps for sandbox vs. production.</span>
+        </td>
+        <td>Plenary + tech leads</td>
+        <td>Data availability matrix; synthetic data plan for gaps</td>
+      </tr>
+      <tr>
+        <td class="time-col">10:15&ndash;10:30</td>
+        <td><strong>Break</strong></td>
+        <td>&mdash;</td>
+        <td>&mdash;</td>
+      </tr>
+
+      <!-- EXPLORE -->
+      <tr style="background:rgba(52,152,219,.03)">
+        <td class="time-col">10:30&ndash;11:00</td>
+        <td>
+          <span class="phase-tag phase-explore">EXPLORE</span><br>
+          <strong>Live Demo: "A Day in Eva's Life with Jarvis"</strong><br>
+          <span style="font-size:12px;color:var(--text2)">Walk through the working prototype: lock screen notification &rarr; Morning Briefing (wellness score, nudges, tasks, insights) &rarr; Jarvis chat (bill payment, spend insights, service-to-sales card upgrade) &rarr; portfolio &rarr; PointX. Show the 7-agent pipeline powering each interaction in real time.</span>
+        </td>
+        <td>Live demo + Q&amp;A</td>
+        <td>Shared vision of the "art of the possible"</td>
+      </tr>
+      <tr style="background:rgba(52,152,219,.03)">
+        <td class="time-col">11:00&ndash;12:00</td>
+        <td>
+          <span class="phase-tag phase-explore">EXPLORE</span><br>
+          <strong>Future-State Ideation &mdash; "10x Better"</strong><br>
+          <span style="font-size:12px;color:var(--text2)">Three breakout groups, each designing the ideal future state for one journey phase:<br>
+          &bull; <strong>Group A (START):</strong> Morning Brief + App Home &mdash; what should Eva see when she opens SCB EASY?<br>
+          &bull; <strong>Group B (DURING):</strong> In-journey servicing &mdash; how should Jarvis handle the top 3 service intents?<br>
+          &bull; <strong>Group C (END):</strong> Service-to-sales &mdash; how do we turn every service conversation into value?<br>
+          Each group maps: customer actions, AI actions, emotional arc, data signals, cross-PortCo opportunities (CardX, PointX, SCB WEALTH).</span>
+        </td>
+        <td>3 breakout groups<br>(20 min ideate + 10 min present each)</td>
+        <td>Three future-state journey canvases; prioritized "wow" moments</td>
+      </tr>
+      <tr>
+        <td class="time-col">12:00&ndash;1:00</td>
+        <td><strong>Lunch</strong><br><span style="font-size:12px;color:var(--text2)">Optional: browse the interactive demo on your own device</span></td>
+        <td>&mdash;</td>
+        <td>&mdash;</td>
+      </tr>
+
+      <!-- ACT -->
+      <tr style="background:rgba(201,168,76,.04)">
+        <td class="time-col">1:00&ndash;1:30</td>
+        <td>
+          <span class="phase-tag phase-act">ACT</span><br>
+          <strong>Service Blueprint Deep-Dive: Architecture</strong><br>
+          <span style="font-size:12px;color:var(--text2)">Present the Dynamic Experience Engine (DEE) architecture: Data Layer &rarr; Decisioning Layer (5 core modules) &rarr; Engagement Layer &rarr; Channel Orchestrator &rarr; Learning Loop. Map each HyPe module to the journey:<br>
+          &bull; Individual theme-specific models/agents<br>
+          &bull; Customer-level arbitration/integration layer<br>
+          &bull; Context engine &amp; talking points generator<br>
+          &bull; Integrated comms mart<br>
+          &bull; Omni-channel orchestrator</span>
+        </td>
+        <td>Plenary (tech-led)</td>
+        <td>Architecture alignment; module ownership clarity</td>
+      </tr>
+      <tr style="background:rgba(201,168,76,.04)">
+        <td class="time-col">1:30&ndash;2:45</td>
+        <td>
+          <span class="phase-tag phase-act">ACT</span><br>
+          <strong>Use Case Blueprint Sprint</strong><br>
+          <span style="font-size:12px;color:var(--text2)">Five parallel tables, one per sandbox use case. Each table maps the full service blueprint:<br>
+          <strong>Table 1:</strong> Spend Insights &mdash; what we analyze, detect, compare, and nudge<br>
+          <strong>Table 2:</strong> Smart Payment Anomaly Alerts &mdash; fraud detection, HITL escalation<br>
+          <strong>Table 3:</strong> Hyper-Personalized Loan Servicing &mdash; billing, restructuring, rate transparency<br>
+          <strong>Table 4:</strong> Smart Offers &amp; Rewards &mdash; PointX optimization, redemption, cross-PortCo<br>
+          <strong>Table 5:</strong> Credit Card Sales Journey &mdash; discovery, pre-approval, application, activation<br><br>
+          Each table produces: customer layer, frontstage (UI/chat), backstage (AI agents), support systems (data/APIs), HITL controls, and guardrails.</span>
+        </td>
+        <td>5 parallel tables<br>(carousel &mdash; leaders rotate every 15 min)</td>
+        <td>5 completed service blueprints with data requirements</td>
+      </tr>
+      <tr style="background:rgba(201,168,76,.04)">
+        <td class="time-col">2:45&ndash;3:15</td>
+        <td>
+          <span class="phase-tag phase-act">ACT</span><br>
+          <strong>Integration Architecture: Connecting the Dots</strong><br>
+          <span style="font-size:12px;color:var(--text2)">Merge the 5 use case blueprints into the unified E2E journey. Map integration points between Conversational Banking, HyPe, and Autonomous Ops. Define the cross-PortCo data sharing model (GDZ vs. entity-level). Address: How does Jarvis hand off to HyPe? How does context flow from a call into post-call NBA? Where does HITL sit?</span>
+        </td>
+        <td>Plenary synthesis</td>
+        <td>Integrated E2E service blueprint; integration contracts defined</td>
+      </tr>
+      <tr>
+        <td class="time-col">3:15&ndash;3:30</td>
+        <td><strong>Break</strong></td>
+        <td>&mdash;</td>
+        <td>&mdash;</td>
+      </tr>
+
+      <!-- PROVE -->
+      <tr style="background:rgba(39,174,96,.03)">
+        <td class="time-col">3:30&ndash;4:15</td>
+        <td>
+          <span class="phase-tag phase-prove">PROVE</span><br>
+          <strong>KPI Framework &amp; Success Metrics</strong><br>
+          <span style="font-size:12px;color:var(--text2)">Define measurable success for each journey and use case:<br>
+          &bull; <strong>Engagement:</strong> DAU increase, active time spent, briefing open rate<br>
+          &bull; <strong>Sales:</strong> Lead volume, x-sell conversion, revenue per user, service-to-sales rate<br>
+          &bull; <strong>Service:</strong> Call center migration (target: 70&ndash;80%), branch visit reduction (15&ndash;30%), first-contact resolution<br>
+          &bull; <strong>Experience:</strong> NPS, CSAT, task completion rate, hallucination rate<br>
+          Align on sandbox success criteria vs. production KPI targets.</span>
+        </td>
+        <td>Plenary + voting</td>
+        <td>KPI scorecard with sandbox targets and production targets</td>
+      </tr>
+      <tr style="background:rgba(39,174,96,.03)">
+        <td class="time-col">4:15&ndash;4:45</td>
+        <td>
+          <span class="phase-tag phase-prove">PROVE</span><br>
+          <strong>90-Day Delivery Roadmap &amp; Sprint Planning</strong><br>
+          <span style="font-size:12px;color:var(--text2)">Map the path to June sandbox delivery and Q3 go-to-market:<br>
+          &bull; <strong>Sprint 1&ndash;2 (Weeks 1&ndash;4):</strong> Core engine build &mdash; Digital Twin, NBA engine, context engine, Thai voice/text AI<br>
+          &bull; <strong>Sprint 3&ndash;4 (Weeks 5&ndash;8):</strong> Use case integration &mdash; 5 use cases live in UAT, HyPe modules connected<br>
+          &bull; <strong>Sprint 5&ndash;6 (Weeks 9&ndash;12):</strong> E2E polish &mdash; cross-PortCo flows, guardrails, evaluation benchmarks, demo-ready<br>
+          Assign workstream owners, define data access milestones, flag blockers.</span>
+        </td>
+        <td>Plenary + commitment cards</td>
+        <td>90-day roadmap with sprint assignments and owners</td>
+      </tr>
+
+      <!-- CLOSE -->
+      <tr>
+        <td class="time-col">4:45&ndash;5:15</td>
+        <td>
+          <strong>Blueprint Readout &amp; Leadership Commitment</strong><br>
+          <span style="font-size:12px;color:var(--text2)">Each workstream lead presents their blueprint section (3 min each). Group CEO / sponsor reacts. Room votes on the "north star" experience. Each leader writes a personal 48-hour commitment card. Close with the shared CX vision statement.</span>
+        </td>
+        <td>Plenary presentations</td>
+        <td>Locked CX blueprint; signed commitment cards; shared vision</td>
+      </tr>
+      <tr>
+        <td class="time-col">5:15&ndash;5:30</td>
+        <td><strong>Wrap-Up &amp; Next Steps</strong><br><span style="font-size:12px;color:var(--text2)">Distribute digital copies of all wall outputs. Confirm follow-up cadence. Schedule sprint kick-offs.</span></td>
+        <td>Plenary</td>
+        <td>Action items distributed within 24 hours</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ===== 5. BREAKOUT DESIGN ===== -->
+<div class="section">
+  <div class="section-num">Section 05</div>
+  <h2>Breakout &amp; Exercise Design</h2>
+
+  <h3>Exercise 1: Current-State Journey Mapping (LOOK)</h3>
+  <div class="card-grid">
+    <div class="card">
+      <h5>Wall Template</h5>
+      <p>Pre-printed horizontal journey map with swim lanes: Customer Actions, Frontstage (App/Call/Branch), Backstage (Systems), Data/Signals, Emotions. Color-coded sticky notes for pain points (red), moments of truth (gold), and opportunities (blue).</p>
+    </div>
+    <div class="card">
+      <h5>Input Data</h5>
+      <p>Pre-prepared packets: Top 10 call center intents with volumes, branch visit driver analysis, SCB EASY feature usage heatmap, NPS verbatims, current personalization capabilities (CCOM, Sonic, AI vertise).</p>
+    </div>
+  </div>
+
+  <h3>Exercise 2: Future-State Ideation (EXPLORE)</h3>
+  <div class="card-grid">
+    <div class="card">
+      <h5>Group A: START &mdash; Morning Brief</h5>
+      <p>Design the ideal first 60 seconds of Eva's day on SCB EASY. What does the home screen show? What does the morning brief contain? How does it differ for 3 personas (Wealth Potential, Mass, SME)? What data powers each element?</p>
+    </div>
+    <div class="card">
+      <h5>Group B: DURING &mdash; In-Journey</h5>
+      <p>Design how Jarvis handles: (1) a payment anomaly alert, (2) a loan servicing question, (3) a spend insight nudge. Map the conversational flow, AI agent handoffs, and context engine inputs for each.</p>
+    </div>
+    <div class="card">
+      <h5>Group C: END &mdash; Service-to-Sales</h5>
+      <p>Design the seamless transition: Eva finishes paying a bill &rarr; Jarvis suggests a card upgrade. Map the triggers, offer logic, value optimizer, and channel orchestrator. How does this work for cross-PortCo (CardX credit card, SCB WEALTH fund, PointX redemption)?</p>
+    </div>
+    <div class="card">
+      <h5>Persona Cards</h5>
+      <p>Pre-prepared persona cards for 3 customer archetypes: Eva (31, Marketing Manager, Wealth Potential), Somchai (45, Small Business Owner, SME), Nattapong (24, Fresh Graduate, Mass). Each card has income, products, behavioral signals, and life context.</p>
+    </div>
+  </div>
+
+  <h3>Exercise 3: Use Case Blueprint Sprint (ACT)</h3>
+  <div class="callout">
+    <h5>Carousel Format</h5>
+    <p>Five tables, each with a large pre-printed service blueprint template (Customer Actions &rarr; Frontstage &rarr; Line of Interaction &rarr; Backstage AI Agents &rarr; Line of Visibility &rarr; Support Systems &rarr; Data/APIs &rarr; Guardrails). Leaders rotate between tables every 15 minutes, ensuring cross-pollination. A "table captain" (McKinsey) stays at each table to maintain continuity. Each table produces a completed blueprint and a "top 3 blockers" list.</p>
+  </div>
+</div>
+
+<!-- ===== 6. PREWORK ===== -->
+<div class="section">
+  <div class="section-num">Section 06</div>
+  <h2>Pre-Work &amp; Preparation</h2>
+
+  <div class="prework">
+    <div class="prework-item">
+      <div class="pw-icon">&#128203;</div>
+      <h5>For SCB Leaders</h5>
+      <p>Review top 10 call center intents &amp; volumes. Bring 1 real customer story that shows current pain. Share any existing personalization rules or campaign logic.</p>
+    </div>
+    <div class="prework-item">
+      <div class="pw-icon">&#128187;</div>
+      <h5>For Tech / Data Leads</h5>
+      <p>Prepare data availability matrix (batch, NRT, unstructured). Bring API contract structures and database schema overviews. Flag any data access blockers for sandbox.</p>
+    </div>
+    <div class="prework-item">
+      <div class="pw-icon">&#127912;</div>
+      <h5>For McKinsey Team</h5>
+      <p>Prepare live demo environment. Print journey templates, persona cards, and data packets. Pre-populate current-state journey with known pain points. Prepare global benchmark examples.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 7. PARTICIPANTS ===== -->
+<div class="section">
+  <div class="section-num">Section 07</div>
+  <h2>Recommended Participants</h2>
+
+  <div class="card-grid">
+    <div class="card">
+      <h5>&#127919; Decision Makers (Must-Have)</h5>
+      <p>SCBX Group CEO or delegate (open + close)<br>SCB Head of Digital Banking / SCB EASY<br>Head of Customer Experience<br>Head of Retail Banking<br>Head of Contact Center Operations<br>CardX / PointX business lead</p>
+    </div>
+    <div class="card">
+      <h5>&#128736; Builders (Must-Have)</h5>
+      <p>SCB TechX / Data Engineering lead<br>AI/ML Platform lead<br>Conversational AI tech lead<br>HyPe / Personalization product lead<br>DataX / GDZ representative<br>Risk &amp; Compliance representative</p>
+    </div>
+    <div class="card">
+      <h5>&#128161; Enrichers (Nice-to-Have)</h5>
+      <p>Frontline branch manager (voice of customer)<br>Call center supervisor (real-world friction)<br>UX/Design lead<br>Marketing / Campaign lead<br>Wealth advisory representative</p>
+    </div>
+    <div class="card">
+      <h5>&#9830; McKinsey Team</h5>
+      <p>Engagement Manager (facilitator)<br>CX / Service Design expert<br>AI / Tech Architecture lead<br>Data &amp; Analytics lead<br>HyPe / Personalization lead<br>Visual / UX designer (live sketching)</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 8. OUTPUTS ===== -->
+<div class="section">
+  <div class="section-num">Section 08</div>
+  <h2>Expected Outputs</h2>
+
+  <div class="card-grid">
+    <div class="card">
+      <h5>1. E2E CX Blueprint</h5>
+      <p>A wall-sized service blueprint mapping both journeys end-to-end: customer actions, frontstage UI, AI agent backstage, data flows, HITL controls, and guardrails. Digitized within 48 hours.</p>
+    </div>
+    <div class="card">
+      <h5>2. 5 Use Case Blueprints</h5>
+      <p>Detailed service blueprints for Spend Insights, Anomaly Alerts, Loan Servicing, Smart Offers, and Credit Card Sales &mdash; each with data requirements and integration contracts.</p>
+    </div>
+    <div class="card">
+      <h5>3. KPI Scorecard</h5>
+      <p>Measurable success metrics for sandbox and production: engagement, sales uplift, service migration, experience quality. With baseline and target values.</p>
+    </div>
+    <div class="card">
+      <h5>4. 90-Day Delivery Roadmap</h5>
+      <p>Sprint-by-sprint plan from workshop to June sandbox delivery to Q3 go-to-market. Workstream owners, data milestones, integration checkpoints, blocker escalation path.</p>
+    </div>
+    <div class="card">
+      <h5>5. Data Access Action Plan</h5>
+      <p>Prioritized list of data sources to enable, synthetic data plan for gaps, API access requirements, and GDZ vs. entity-level data sharing decisions.</p>
+    </div>
+    <div class="card">
+      <h5>6. Architecture Decision Record</h5>
+      <p>Key technical decisions locked: DEE module ownership, LLM hosting, cross-PortCo knowledge management, guardrail framework, evaluation methodology.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 9. FACILITATION ===== -->
+<div class="section">
+  <div class="section-num">Section 09</div>
+  <h2>Facilitation Principles</h2>
+  <ul>
+    <li><strong>Customer-back, not tech-forward:</strong> Every discussion starts with "what does Eva need?" before "what can we build?"</li>
+    <li><strong>Transformational, not incremental:</strong> Challenge every "can't do" with "what if we could?" &mdash; the mandate is reimagination from first principles</li>
+    <li><strong>Cross-PortCo by default:</strong> Every use case must consider CardX, PointX, SCB WEALTH, and MONIX integration opportunities</li>
+    <li><strong>Bias to tangibility:</strong> Use the working prototype as the anchor &mdash; critique what exists, extend what's missing</li>
+    <li><strong>Decisions, not discussions:</strong> Every session ends with a locked decision or a named owner for resolution within 48 hours</li>
+    <li><strong>3 personas, not 1:</strong> Test every design against Eva (Wealth Potential), Somchai (SME), and Nattapong (Mass) to ensure scalability</li>
+  </ul>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<div style="margin-top:60px;padding-top:24px;border-top:2px solid var(--border);text-align:center">
+  <div style="font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--text2);font-weight:600">McKinsey &amp; Company &times; SCBX AI Program</div>
+  <div style="font-size:12px;color:var(--text2);margin-top:4px">Confidential &mdash; For internal use only &mdash; April 2026</div>
+</div>
+
+</div>
+</body>
+</html>

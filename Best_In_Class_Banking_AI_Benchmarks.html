@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Best-in-Class Banking AI — Top 5 Benchmarks for SCB Jarvis</title>
+<style>
+:root{--purple:#4e2a84;--purple-light:#7b5ea7;--purple-dark:#2d1654;--gold:#c9a84c;--bg:#fafafa;--card:#fff;--text:#1a1a2e;--text2:#555;--border:#e8e8f0}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'SF Pro Display','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.page{max-width:1000px;margin:0 auto;padding:40px 32px 80px}
+
+.header{text-align:center;padding:48px 0 40px;border-bottom:3px solid var(--purple)}
+.header .tag{font-size:12px;text-transform:uppercase;letter-spacing:2px;color:var(--gold);font-weight:700}
+.header h1{font-size:30px;font-weight:800;color:var(--purple-dark);margin:8px 0;line-height:1.25}
+.header .sub{font-size:15px;color:var(--text2);max-width:680px;margin:0 auto}
+
+.section{margin-top:48px}
+.section h2{font-size:22px;font-weight:700;color:var(--purple-dark);margin-bottom:20px;padding-bottom:10px;border-bottom:2px solid var(--border)}
+
+/* Benchmark cards */
+.bench{background:var(--card);border:1px solid var(--border);border-radius:16px;margin-bottom:24px;overflow:hidden;transition:box-shadow .2s}
+.bench:hover{box-shadow:0 8px 24px rgba(0,0,0,.06)}
+.bench-header{display:flex;align-items:center;gap:16px;padding:24px 28px;border-bottom:1px solid var(--border);position:relative}
+.bench-header::before{content:'';position:absolute;top:0;left:0;right:0;height:4px}
+.bench:nth-child(1) .bench-header::before{background:linear-gradient(90deg,#7b5ea7,#4e2a84)}
+.bench:nth-child(2) .bench-header::before{background:linear-gradient(90deg,#e74c3c,#c0392b)}
+.bench:nth-child(3) .bench-header::before{background:linear-gradient(90deg,#8b45a6,#5b2d8e)}
+.bench:nth-child(4) .bench-header::before{background:linear-gradient(90deg,#1877f2,#0d5fbc)}
+.bench:nth-child(5) .bench-header::before{background:linear-gradient(90deg,#00d4aa,#00a17b)}
+.bench-rank{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--gold));color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;flex-shrink:0}
+.bench-id{flex:1}
+.bench-name{font-size:20px;font-weight:700;color:var(--purple-dark)}
+.bench-origin{font-size:12px;color:var(--text2);margin-top:2px}
+.bench-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(78,42,132,.08);color:var(--purple);text-transform:uppercase;letter-spacing:.5px}
+.bench-body{padding:24px 28px}
+.bench-body h4{font-size:14px;font-weight:700;color:var(--purple);margin:16px 0 8px;text-transform:uppercase;letter-spacing:.5px}
+.bench-body h4:first-child{margin-top:0}
+.bench-body p{font-size:13.5px;color:var(--text);line-height:1.7}
+.bench-body ul{padding-left:18px;margin:6px 0}
+.bench-body li{font-size:13px;color:var(--text);line-height:1.6;margin-bottom:3px}
+
+.attr-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:12px 0}
+.attr{background:rgba(78,42,132,.03);border:1px solid rgba(78,42,132,.08);border-radius:10px;padding:12px 14px}
+.attr .a-label{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--gold);font-weight:700;margin-bottom:3px}
+.attr .a-value{font-size:13px;font-weight:600;color:var(--purple-dark);line-height:1.4}
+
+.impact{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;margin:2px 4px 2px 0}
+.impact.green{background:rgba(22,163,74,.1);color:#16a34a}
+.impact.blue{background:rgba(59,130,246,.1);color:#2563eb}
+.impact.gold{background:rgba(201,168,76,.15);color:#9a7d2e}
+
+/* Comparison table */
+.comp-table{width:100%;border-collapse:collapse;font-size:12.5px;margin:20px 0}
+.comp-table th{background:var(--purple);color:#fff;padding:10px 12px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+.comp-table td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+.comp-table tr:hover td{background:rgba(78,42,132,.02)}
+.comp-table .check{color:#16a34a;font-weight:700;text-align:center;font-size:16px}
+.comp-table .partial{color:#ea8c00;font-weight:700;text-align:center;font-size:16px}
+.comp-table .miss{color:#ccc;text-align:center;font-size:16px}
+
+/* Takeaways */
+.takeaway{background:linear-gradient(135deg,rgba(78,42,132,.06),rgba(201,168,76,.06));border:1px solid rgba(78,42,132,.15);border-radius:14px;padding:24px 28px;margin:20px 0}
+.takeaway h4{font-size:15px;font-weight:700;color:var(--purple);margin-bottom:10px}
+.takeaway li{font-size:13.5px;margin-bottom:6px;line-height:1.6}
+.takeaway strong{color:var(--purple-dark)}
+
+.footer{margin-top:48px;padding-top:20px;border-top:2px solid var(--border);text-align:center;font-size:11px;color:var(--text2)}
+@media(max-width:700px){.attr-grid{grid-template-columns:1fr}.bench-header{flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="header">
+  <div class="tag">Competitive Intelligence &mdash; April 2026</div>
+  <h1>Top 5 Best-in-Class Banking AI Assistants<br>Benchmarking SCB Jarvis</h1>
+  <div class="sub">Analysis of the world's leading banking apps with AI-powered personal finance briefing, daily insights, and proactive coaching capabilities &mdash; what makes them great and what SCB Jarvis can learn</div>
+</div>
+
+<!-- ===== TOP 5 BENCHMARKS ===== -->
+<div class="section">
+  <h2>The Top 5</h2>
+
+  <!-- #1 REVOLUT AIR -->
+  <div class="bench">
+    <div class="bench-header">
+      <div class="bench-rank">1</div>
+      <div class="bench-id">
+        <div class="bench-name">Revolut AIR</div>
+        <div class="bench-origin">UK / Global &bull; 50M+ customers &bull; Launched April 2026</div>
+      </div>
+      <div class="bench-badge">Most Complete</div>
+    </div>
+    <div class="bench-body">
+      <h4>What It Does</h4>
+      <p>AIR (AI by Revolut) is a full conversational AI assistant embedded directly into the Revolut app. Users swipe down from the home screen to access it. It handles spending analysis, investment tracking, subscription management, card controls, and travel support &mdash; all through natural language chat.</p>
+
+      <h4>Best-in-Class Attributes</h4>
+      <div class="attr-grid">
+        <div class="attr"><div class="a-label">Access Pattern</div><div class="a-value">Swipe-down from home screen &mdash; zero taps to reach AI</div></div>
+        <div class="attr"><div class="a-label">Daily Insights</div><div class="a-value">Instant spending breakdowns by day/week/month/year on demand</div></div>
+        <div class="attr"><div class="a-label">Action Execution</div><div class="a-value">Freeze cards, cancel subscriptions, plan travel budgets &mdash; all in-chat</div></div>
+        <div class="attr"><div class="a-label">Privacy Model</div><div class="a-value">Zero data retention with 3rd-party AI; biometric auth for sensitive actions</div></div>
+        <div class="attr"><div class="a-label">Holistic View</div><div class="a-value">"Holistic view of money" across all accounts, crypto, stocks, savings</div></div>
+        <div class="attr"><div class="a-label">Scope</div><div class="a-value">Spend + Invest + Subscriptions + Cards + Travel in one interface</div></div>
+      </div>
+
+      <h4>Impact</h4>
+      <span class="impact green">13M UK users at launch</span>
+      <span class="impact blue">50M+ global users eligible</span>
+      <span class="impact gold">Full financial control via chat</span>
+
+      <h4>Key Lesson for SCB Jarvis</h4>
+      <p><strong>The "swipe-down" access pattern is genius.</strong> AIR is not buried in a tab &mdash; it's the first thing users reach. Jarvis should be equally effortless to summon. The breadth of <em>actionable</em> capabilities (not just insights, but card freezing, subscription cancellation) sets the bar for what "personal banker" means.</p>
+    </div>
+  </div>
+
+  <!-- #2 CLEO AI -->
+  <div class="bench">
+    <div class="bench-header">
+      <div class="bench-rank">2</div>
+      <div class="bench-id">
+        <div class="bench-name">Cleo AI</div>
+        <div class="bench-origin">UK / US &bull; 7M+ users &bull; Founded 2016, Cleo 3.0 launched 2025</div>
+      </div>
+      <div class="bench-badge">Best Personality</div>
+    </div>
+    <div class="bench-body">
+      <h4>What It Does</h4>
+      <p>Cleo is a standalone AI money coach that connects to users' bank accounts. It delivers real-time spending analysis, budget creation, saving recommendations, and proactive financial nudges &mdash; all through a chatbot with a distinctive, witty personality (it will "roast" you for overspending on Uber). Cleo 3.0 added proactive reasoning &mdash; the AI analyzes transactions autonomously and pushes insights without waiting to be asked.</p>
+
+      <h4>Best-in-Class Attributes</h4>
+      <div class="attr-grid">
+        <div class="attr"><div class="a-label">Proactive Intelligence</div><div class="a-value">Cleo 3.0: autonomous analysis pushes insights before you ask</div></div>
+        <div class="attr"><div class="a-label">Personality</div><div class="a-value">"Roast mode" &mdash; humor-driven engagement drives daily habit (3x retention)</div></div>
+        <div class="attr"><div class="a-label">Memory</div><div class="a-value">Remembers past goals, stressors, and context across sessions</div></div>
+        <div class="attr"><div class="a-label">Real-Time Budgeting</div><div class="a-value">Budget updates minute-by-minute as purchases are made</div></div>
+        <div class="attr"><div class="a-label">Auto-Categorization</div><div class="a-value">Automatic spend categorization with pattern detection</div></div>
+        <div class="attr"><div class="a-label">Nudge Design</div><div class="a-value">Behavioral science: specific, actionable, timely ("You spent 3x on coffee vs last week")</div></div>
+      </div>
+
+      <h4>Impact</h4>
+      <span class="impact green">7M+ users</span>
+      <span class="impact blue">$100M+ ARR</span>
+      <span class="impact gold">Highest engagement in category</span>
+
+      <h4>Key Lesson for SCB Jarvis</h4>
+      <p><strong>Proactive > Reactive.</strong> Cleo 3.0's biggest leap was moving from "answer when asked" to "tell you what you need to know before you ask." This is exactly the Morning Briefing model. The personality-driven engagement is also a lesson: Jarvis shouldn't feel like a bank &mdash; it should feel like a smart friend. The <em>memory</em> across sessions (remembering your goals, stressors) is critical for building trust.</p>
+    </div>
+  </div>
+
+  <!-- #3 NUBANK -->
+  <div class="bench">
+    <div class="bench-header">
+      <div class="bench-rank">3</div>
+      <div class="bench-id">
+        <div class="bench-name">Nubank</div>
+        <div class="bench-origin">Brazil / LatAm &bull; 131M+ customers &bull; AI-First since 2024</div>
+      </div>
+      <div class="bench-badge">Best at Scale</div>
+    </div>
+    <div class="bench-body">
+      <h4>What It Does</h4>
+      <p>Nubank embeds personalized recommendations directly on the app home screen &mdash; anticipating financial needs before the user acts. Behind the scenes, their proprietary <strong>nuFormer</strong> foundation model (transformer-based, up to 330M parameters) ingests raw transaction sequences to understand spending patterns, seasonal variations, and behavioral signals at a depth no rule-based system can match. This powers credit decisions, nudges, cross-sell, and income prediction for 131M customers.</p>
+
+      <h4>Best-in-Class Attributes</h4>
+      <div class="attr-grid">
+        <div class="attr"><div class="a-label">Foundation Model</div><div class="a-value">nuFormer: 330M-param transformer trained on transaction sequences &mdash; not static features</div></div>
+        <div class="attr"><div class="a-label">Home Screen NBA</div><div class="a-value">Personalized next-best-actions on home screen: retry payments, pay bills, save, insure</div></div>
+        <div class="attr"><div class="a-label">Auto Categorization</div><div class="a-value">AI-powered expense categorization + monthly budget analysis</div></div>
+        <div class="attr"><div class="a-label">Smart Alerts</div><div class="a-value">Atypical transaction alerts + excessive spending warnings to prevent over-indebtedness</div></div>
+        <div class="attr"><div class="a-label">Predictive Payments</div><div class="a-value">Centralized bill hub with predictive payment assistance</div></div>
+        <div class="attr"><div class="a-label">Scale</div><div class="a-value">131M customers, multi-country, cross-product (cards, loans, insurance, investments)</div></div>
+      </div>
+
+      <h4>Impact</h4>
+      <span class="impact green">131M customers served</span>
+      <span class="impact blue">nuFormer: 2x lift in credit model accuracy</span>
+      <span class="impact gold">Home-screen NBA drives engagement</span>
+
+      <h4>Key Lesson for SCB Jarvis</h4>
+      <p><strong>The architecture matters as much as the UX.</strong> Nubank's secret weapon isn't the UI &mdash; it's the nuFormer foundation model that understands financial behavior from raw transaction sequences. SCB should think about its own "digital twin" model trained on Thai financial behavior. The home-screen NBA approach (showing the right action at the right time without the user asking) is directly applicable to SCB EASY's redesigned home screen.</p>
+    </div>
+  </div>
+
+  <!-- #4 DBS -->
+  <div class="bench">
+    <div class="bench-header">
+      <div class="bench-rank">4</div>
+      <div class="bench-id">
+        <div class="bench-name">DBS digibank + NAV Planner</div>
+        <div class="bench-origin">Singapore / SEA &bull; 3.5M+ wealth users &bull; AI since 2020</div>
+      </div>
+      <div class="bench-badge">Best for Wealth</div>
+    </div>
+    <div class="bench-body">
+      <h4>What It Does</h4>
+      <p>DBS NAV Planner consolidates all finances (savings, CPF, investments, insurance across institutions) into one AI-powered dashboard. It computes a financial wellness score, generates personalized investment recommendations with specific product suggestions (not just categories), and delivers 30M hyper-personalized nudges monthly to 3.5M customers in Singapore alone. It also screens users for financial readiness &mdash; withholding investment recommendations from those with negative cashflow.</p>
+
+      <h4>Best-in-Class Attributes</h4>
+      <div class="attr-grid">
+        <div class="attr"><div class="a-label">Financial Wellness Score</div><div class="a-value">Holistic score across savings, investments, insurance, CPF &mdash; direct inspiration for Jarvis</div></div>
+        <div class="attr"><div class="a-label">100+ AI Models</div><div class="a-value">100+ ML models generate hyper-personalized nudges at scale</div></div>
+        <div class="attr"><div class="a-label">30M Monthly Nudges</div><div class="a-value">30M personalized nudges/month to 3.5M users in Singapore alone</div></div>
+        <div class="attr"><div class="a-label">Cross-Institution View</div><div class="a-value">SGFinDex integration: sees finances across ALL banks, not just DBS</div></div>
+        <div class="attr"><div class="a-label">Responsible Gating</div><div class="a-value">Withholds investment recs from users with negative cashflow or zero risk tolerance</div></div>
+        <div class="attr"><div class="a-label">Proven Sales Uplift</div><div class="a-value">Users invest 2.5x more (SGD 7,500 vs SGD 3,000) vs non-users</div></div>
+      </div>
+
+      <h4>Impact</h4>
+      <span class="impact green">2.5x investment uplift</span>
+      <span class="impact blue">30M nudges/month</span>
+      <span class="impact gold">Regional SEA relevance for SCB</span>
+
+      <h4>Key Lesson for SCB Jarvis</h4>
+      <p><strong>The closest peer benchmark for SCB.</strong> DBS is the gold standard in Southeast Asia and directly comparable in market, regulation, and customer behavior. Three things to steal: (1) the financial wellness score concept (already in Jarvis), (2) the "responsible gating" approach to guardrails, and (3) the cross-institution data aggregation model. The 2.5x investment uplift is the kind of metric SCB should target for the business case.</p>
+    </div>
+  </div>
+
+  <!-- #5 STARLING -->
+  <div class="bench">
+    <div class="bench-header">
+      <div class="bench-rank">5</div>
+      <div class="bench-id">
+        <div class="bench-name">Starling Assistant</div>
+        <div class="bench-origin">UK &bull; 4.2M accounts &bull; Launched March 2026</div>
+      </div>
+      <div class="bench-badge">Best Agentic AI</div>
+    </div>
+    <div class="bench-body">
+      <h4>What It Does</h4>
+      <p>Starling Assistant is the UK's first <strong>agentic AI</strong> financial assistant &mdash; it doesn't just answer questions, it executes multi-step financial tasks autonomously. Users can say "Save &pound;200/month for a holiday" and the assistant calculates, creates a savings goal, and sets up automatic transfers. It combines Starling's existing Spending Intelligence (NLP search over transactions) and Scam Intelligence (fraud detection) into one unified agent that acts on behalf of the customer.</p>
+
+      <h4>Best-in-Class Attributes</h4>
+      <div class="attr-grid">
+        <div class="attr"><div class="a-label">Agentic Execution</div><div class="a-value">Multi-step task execution: "Save for holiday" &rarr; calculates, creates goal, sets transfers</div></div>
+        <div class="attr"><div class="a-label">NL Transaction Search</div><div class="a-value">"How many direct debits do I pay?" &mdash; instant NLP answer from spending data</div></div>
+        <div class="attr"><div class="a-label">Budget Automation</div><div class="a-value">Creates budget categories on payday, allocates automatically</div></div>
+        <div class="attr"><div class="a-label">Accessibility</div><div class="a-value">Sign language guidance, financial distress support, inclusive design</div></div>
+        <div class="attr"><div class="a-label">Fraud Integration</div><div class="a-value">Scam Intelligence baked into assistant &mdash; real-time protection during conversations</div></div>
+        <div class="attr"><div class="a-label">Voice + Text</div><div class="a-value">Responds to both voice commands and natural language text</div></div>
+      </div>
+
+      <h4>Impact</h4>
+      <span class="impact green">UK-first agentic AI in banking</span>
+      <span class="impact blue">Built on Google Gemini</span>
+      <span class="impact gold">8 years of AI R&D</span>
+
+      <h4>Key Lesson for SCB Jarvis</h4>
+      <p><strong>Agentic > Assistive.</strong> Starling's leap is from "I'll show you insights" to "I'll do it for you." This is the SCBX Autonomous Operations vision made real. The combination of spending intelligence + scam intelligence + task execution in one agent is the model for Jarvis. The accessibility features are also worth noting &mdash; SCB should consider Thai-language accessibility from day one.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== COMPARISON TABLE ===== -->
+<div class="section">
+  <h2>Feature Comparison Matrix</h2>
+  <table class="comp-table">
+    <thead>
+      <tr>
+        <th>Capability</th>
+        <th>Revolut AIR</th>
+        <th>Cleo AI</th>
+        <th>Nubank</th>
+        <th>DBS NAV</th>
+        <th>Starling</th>
+        <th>SCB Jarvis<br>(Target)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Personalized morning brief / daily digest</strong></td><td class="miss">&mdash;</td><td class="check">&check;</td><td class="partial">&#9679;</td><td class="partial">&#9679;</td><td class="miss">&mdash;</td><td class="check">&check;</td></tr>
+      <tr><td><strong>Financial wellness score</strong></td><td class="miss">&mdash;</td><td class="partial">&#9679;</td><td class="miss">&mdash;</td><td class="check">&check;</td><td class="miss">&mdash;</td><td class="check">&check;</td></tr>
+      <tr><td><strong>Proactive AI nudges (push, not pull)</strong></td><td class="partial">&#9679;</td><td class="check">&check;</td><td class="check">&check;</td><td class="check">&check;</td><td class="partial">&#9679;</td><td class="check">&check;</td></tr>
+      <tr><td><strong>Conversational AI (text)</strong></td><td class="check">&check;</td><td class="check">&check;</td><td class="partial">&#9679;</td><td class="miss">&mdash;</td><td class="check">&check;</td><td class="check">&check;</td></tr>
+      <tr><td><strong>Voice interface</strong></td><td class="miss">&mdash;</td><td class="miss">&mdash;</td><td class="miss">&mdash;</td><td class="miss">&mdash;</td><td class="check">&check;</td><td class="check">&check;</td></tr>
+      <tr><td><strong>In-chat task execution (agentic)</strong></td><td class="check">&check;</td><td class="miss">&mdash;</td><td class="miss">&mdash;</td><td class="miss">&mdash;</td><td class="check">&check;</td><td class="check">&check;</td></tr>
+      <tr><td><strong>Spend insights + categorization</strong></td><td class="check">&check;</td><td class="check">&check;</td><td class="check">&check;</td><td class="check">&check;</td><td class="check">&check;</td><td class="check">&check;</td></tr>
+      <tr><td><strong>Investment / portfolio advisory</strong></td><td class="check">&check;</td><td class="miss">&mdash;</td><td class="partial">&#9679;</td><td class="check">&check;</td><td class="miss">&mdash;</td><td class="check">&check;</td></tr>
+      <tr><td><strong>Service-to-sales (in-journey cross-sell)</strong></td><td class="miss">&mdash;</td><td class="miss">&mdash;</td><td class="check">&check;</td><td class="check">&check;</td><td class="miss">&mdash;</td><td class="check">&check;</td></tr>
+      <tr><td><strong>Cross-entity / open banking data</strong></td><td class="check">&check;</td><td class="check">&check;</td><td class="miss">&mdash;</td><td class="check">&check;</td><td class="partial">&#9679;</td><td class="check">&check;</td></tr>
+      <tr><td><strong>Foundation model on transactions</strong></td><td class="miss">&mdash;</td><td class="miss">&mdash;</td><td class="check">&check;</td><td class="partial">&#9679;</td><td class="miss">&mdash;</td><td class="check">&check;</td></tr>
+      <tr><td><strong>Fraud / anomaly detection</strong></td><td class="check">&check;</td><td class="miss">&mdash;</td><td class="partial">&#9679;</td><td class="miss">&mdash;</td><td class="check">&check;</td><td class="check">&check;</td></tr>
+      <tr><td><strong>Personality / emotional engagement</strong></td><td class="partial">&#9679;</td><td class="check">&check;</td><td class="miss">&mdash;</td><td class="miss">&mdash;</td><td class="partial">&#9679;</td><td class="check">&check;</td></tr>
+      <tr><td><strong>Session memory (cross-conversation)</strong></td><td class="partial">&#9679;</td><td class="check">&check;</td><td class="miss">&mdash;</td><td class="miss">&mdash;</td><td class="partial">&#9679;</td><td class="check">&check;</td></tr>
+      <tr><td><strong>Human-in-the-loop escalation</strong></td><td class="check">&check;</td><td class="check">&check;</td><td class="check">&check;</td><td class="miss">&mdash;</td><td class="check">&check;</td><td class="check">&check;</td></tr>
+      <tr><td><strong>Local language (non-English) support</strong></td><td class="miss">&mdash;</td><td class="miss">&mdash;</td><td class="check">&check;</td><td class="miss">&mdash;</td><td class="miss">&mdash;</td><td class="check">&check;</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:11px;color:var(--text2);margin-top:8px">&check; = Fully available &nbsp;&bull;&nbsp; &#9679; = Partial / limited &nbsp;&bull;&nbsp; &mdash; = Not available &nbsp;&bull;&nbsp; SCB Jarvis column shows target state for sandbox</p>
+</div>
+
+<!-- ===== KEY TAKEAWAYS ===== -->
+<div class="section">
+  <h2>What This Means for SCB Jarvis</h2>
+
+  <div class="takeaway">
+    <h4>The 7 Differentiating Attributes That Define Best-in-Class</h4>
+    <ol>
+      <li><strong>Proactive, not reactive.</strong> The best apps (Cleo 3.0, Nubank, DBS) push insights to users before they ask. The Morning Briefing is SCB's answer &mdash; but it must extend beyond a once-daily digest to real-time nudges throughout the day.</li>
+      <li><strong>Agentic execution, not just information.</strong> Revolut AIR and Starling let users do things through the AI (freeze cards, set up savings, execute transfers) &mdash; not just see things. Jarvis must be able to <em>act</em>, not just <em>advise</em>.</li>
+      <li><strong>Foundation model depth.</strong> Nubank's nuFormer shows the power of training a transformer on raw transaction sequences. Rule-based personalization can't match it. SCB's Digital Twin should aspire to this depth.</li>
+      <li><strong>Financial wellness score as anchor.</strong> DBS NAV Planner proves that a single, holistic score drives engagement and investment behavior (2.5x uplift). Jarvis's 4-pillar wellness score is already aligned with this best practice.</li>
+      <li><strong>Personality drives habit.</strong> Cleo proves that emotional engagement (humor, warmth, directness) is a retention driver, not a gimmick. Jarvis should have a warm, distinctly Thai personality &mdash; not feel like a corporate chatbot.</li>
+      <li><strong>Privacy as feature.</strong> Revolut's zero-data-retention policy and biometric gating aren't just compliance &mdash; they're a trust-building feature that users value. SCB should make guardrails visible and user-facing.</li>
+      <li><strong>Cross-entity data is table stakes.</strong> DBS (SGFinDex), Revolut (multi-bank), and Cleo (bank linking) all aggregate data across institutions. SCB's cross-PortCo advantage (CardX, PointX, SCB WEALTH, MONIX) is a natural moat if the data flows.</li>
+    </ol>
+  </div>
+
+  <div class="takeaway">
+    <h4>Where SCB Jarvis Can Be #1</h4>
+    <ol>
+      <li><strong>No one has all of these together.</strong> The comparison matrix shows no single app checks every box. Jarvis, by combining morning briefing + agentic chat + wellness score + service-to-sales + Thai voice + cross-PortCo data, can be the most complete AI banking experience in the world.</li>
+      <li><strong>No one does Thai-language AI banking.</strong> Every benchmark is English-first. Production-grade Thai conversational AI (voice + text) is an uncontested market position.</li>
+      <li><strong>No one integrates service-to-sales this deeply.</strong> Cleo and Starling are pure service; Nubank and DBS do cross-sell but not through conversational AI mid-journey. The Jarvis bill-pay &rarr; card-upgrade flow is genuinely novel.</li>
+      <li><strong>The cross-PortCo data advantage.</strong> Nubank has one entity. DBS has one bank. SCBX has CardX, PointX, SCB WEALTH, MONIX, AutoX, and Purple Ventures &mdash; each a data signal. If the data architecture works, no competitor can match this depth of customer understanding.</li>
+    </ol>
+  </div>
+</div>
+
+<div class="footer">
+  McKinsey &amp; Company &times; SCBX AI Program &bull; Confidential &mdash; April 2026
+</div>
+
+</div>
+</body>
+</html>

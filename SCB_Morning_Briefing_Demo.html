@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCB Jarvis — Morning Briefing Demo</title>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<style>
+:root{--scb-purple:#4e2a84;--scb-purple-light:#7b5ea7;--scb-purple-dark:#2d1654;--scb-purple-deep:#1a0d33;--scb-gold:#c9a84c;--scb-gold-light:#e8d5a0;--accent:#6c4dc4;--success:#16a34a;--success-bg:rgba(22,163,74,.15);--warning:#ea8c00;--warning-bg:rgba(234,140,0,.15);--danger:#ef4444;--danger-bg:rgba(239,68,68,.15);--card-bg:rgba(255,255,255,.06);--card-border:rgba(255,255,255,.08);--text:#fff;--text2:rgba(255,255,255,.55);--text3:rgba(255,255,255,.3);--glass:rgba(255,255,255,.05);--glass-border:rgba(255,255,255,.1);--radius:16px;--radius-sm:12px;--radius-pill:24px;--gold-glow:rgba(201,168,76,.2)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'SF Pro Display','Segoe UI',system-ui,-apple-system,sans-serif;background:#0f0a1a;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:20px;color:var(--text)}
+.phone{width:390px;height:844px;border-radius:44px;background:linear-gradient(170deg,#2d1654 0%,#1a0d33 50%,#0f0a1a 100%);position:relative;overflow:hidden;box-shadow:0 0 0 3px #111,0 0 0 6px #1a0d33,0 20px 60px rgba(0,0,0,.7)}
+.phone-notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:160px;height:34px;background:#000;border-radius:0 0 20px 20px;z-index:1000}
+.status-bar{position:absolute;top:0;left:0;right:0;height:50px;display:flex;align-items:center;justify-content:space-between;padding:12px 28px 0;z-index:999;font-size:12px;font-weight:600}
+
+/* Screens */
+.screen{position:absolute;inset:0;transition:opacity .35s ease,transform .35s ease;opacity:0;pointer-events:none;overflow:hidden}
+.screen.active{opacity:1;pointer-events:all;transform:translateX(0)!important}
+
+/* Bottom Nav — REMOVED (conversational-first design) */
+
+/* Agent Badge */
+.agent-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);border-radius:20px;padding:3px 10px;font-size:10px;color:var(--scb-gold);font-weight:600;margin-bottom:8px;animation:badgePulse 2s ease infinite}
+@keyframes badgePulse{0%,100%{opacity:1}50%{opacity:.6}}
+.agent-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--scb-gold);animation:dotBlink 1s ease infinite}
+@keyframes dotBlink{0%,100%{opacity:1}50%{opacity:.2}}
+
+/* Lock Screen */
+.lock-screen{display:flex;flex-direction:column;align-items:center;padding-top:80px;background:linear-gradient(170deg,#2d1654 0%,#1a0d33 50%,#0f0a1a 100%);height:100%;position:relative}
+.lock-screen::after{content:'';position:absolute;top:35%;left:50%;transform:translate(-50%,-50%);width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,.1) 0%,rgba(108,77,196,.06) 50%,transparent 70%);pointer-events:none}
+.lock-date{font-size:18px;color:var(--text2);font-weight:500;position:relative;z-index:1}
+.lock-time{font-size:72px;font-weight:200;letter-spacing:-2px;margin:4px 0 40px;color:rgba(255,255,255,.9);position:relative;z-index:1}
+.notification{margin:0 24px;background:rgba(255,255,255,.08);backdrop-filter:blur(40px);border-radius:18px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start;border:1px solid rgba(255,255,255,.06);cursor:pointer;transition:transform .2s,background .2s;animation:slideDown .5s ease .5s both;position:relative;z-index:1}
+.notification:hover{transform:scale(1.02);background:rgba(255,255,255,.12)}
+.notif-avatar{width:40px;height:40px;border-radius:10px;background:var(--scb-gold);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.notif-app{font-size:12px;font-weight:600;color:rgba(255,255,255,.6)}
+.notif-time{font-size:11px;color:var(--text3)}
+.notif-text{font-size:13px;line-height:1.4;color:rgba(255,255,255,.8)}
+@keyframes slideDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+
+/* Shared header style */
+.scr-header{padding:58px 20px 8px;flex-shrink:0}
+.scr-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.back-btn,.menu-btn{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.1);border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s}
+.back-btn:hover,.menu-btn:hover{background:rgba(255,255,255,.2)}
+.scr-title{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase}
+.greeting-text{font-size:24px;font-weight:300;line-height:1.2}
+.greeting-sub{font-size:13px;color:var(--text2);margin-top:4px;line-height:1.4}
+
+/* Scrollable body */
+.scr-body{flex:1;overflow-y:auto;padding:0 20px 100px;-webkit-overflow-scrolling:touch;scroll-behavior:smooth}
+.scr-body::-webkit-scrollbar{display:none}
+
+/* Section titles */
+.section-title{font-size:13px;font-weight:600;color:var(--text2);margin:20px 0 8px;letter-spacing:.5px;text-transform:uppercase}
+.section-header{display:flex;justify-content:space-between;align-items:center}
+.view-all{font-size:12px;color:var(--scb-gold);cursor:pointer;border:none;background:none}
+
+/* Cards */
+.card-g{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:16px;margin-bottom:8px;cursor:pointer;transition:all .2s}
+.card-g:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.18)}
+
+/* Pulse */
+.pulse-card{display:flex;align-items:center;gap:16px}
+.pulse-badge{display:inline-block;background:var(--success);color:#fff;font-size:11px;font-weight:700;padding:2px 10px;border-radius:12px;margin-top:4px}
+.pulse-gauge{position:relative;width:80px;height:80px;flex-shrink:0}
+.pulse-gauge svg{transform:rotate(-90deg)}
+.pulse-gauge .score{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800}
+
+/* Nudge */
+.nudge-card{display:flex;gap:12px;align-items:center;padding:14px 16px}
+.nudge-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.nudge-icon.fitness{background:rgba(234,88,12,.2)}.nudge-icon.beauty{background:rgba(236,72,153,.2)}.nudge-icon.travel{background:rgba(59,130,246,.2)}.nudge-icon.wellness{background:rgba(139,92,246,.2)}.nudge-icon.rewards{background:rgba(201,168,76,.2)}
+.nudge-text{font-size:13px;line-height:1.45;color:rgba(255,255,255,.85)}
+
+/* Tasks */
+.task-item{display:flex;align-items:center;gap:12px;padding:14px 16px}
+.task-check{width:22px;height:22px;border-radius:50%;border:2px solid rgba(201,168,76,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .3s;font-size:12px}
+.task-check.done{background:var(--scb-gold);border-color:var(--scb-gold)}
+.task-text{flex:1;font-size:13.5px}.task-text.done{text-decoration:line-through;color:var(--text2)}
+
+/* Insights */
+.insight-card{display:flex;gap:12px;align-items:flex-start;padding:14px 16px}
+.insight-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.insight-icon.negative{background:var(--danger-bg);color:var(--danger)}.insight-icon.positive{background:var(--success-bg);color:var(--success)}
+.insight-title{font-size:13.5px;font-weight:600}.insight-sub{font-size:12px;color:var(--text2);margin-top:2px}
+
+/* Spend bars */
+.spend-bars{display:flex;gap:6px;height:6px;margin:12px 0}
+.spend-bar{border-radius:3px}
+.see-recs{font-size:13px;color:var(--scb-gold);font-weight:600;margin-top:12px;display:block;cursor:pointer;text-decoration:none}
+
+/* Mic bar */
+.mic-bar{position:absolute;bottom:0;left:0;right:0;padding:6px 20px 24px;background:linear-gradient(transparent,rgba(26,13,51,.97) 40%);z-index:100}
+.mic-wave{height:30px;display:flex;align-items:center;justify-content:center;gap:2px;opacity:.35}
+.mic-wave span{width:3px;border-radius:2px;background:linear-gradient(var(--scb-gold),var(--accent));animation:wave 1.2s ease-in-out infinite alternate}
+.mic-wave span:nth-child(1){height:10px;animation-delay:0s}.mic-wave span:nth-child(2){height:20px;animation-delay:.1s}.mic-wave span:nth-child(3){height:28px;animation-delay:.2s}.mic-wave span:nth-child(4){height:16px;animation-delay:.3s}.mic-wave span:nth-child(5){height:24px;animation-delay:.4s}.mic-wave span:nth-child(6){height:12px;animation-delay:.5s}.mic-wave span:nth-child(7){height:30px;animation-delay:.6s}
+@keyframes wave{to{height:6px}}
+.mic-btn{width:44px;height:44px;border-radius:50%;background:var(--scb-gold);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 20px rgba(201,168,76,.35);transition:transform .2s;margin:0 auto;color:#fff}
+.mic-btn:hover{transform:scale(1.1)}
+.mic-hint{text-align:center;font-size:11px;color:var(--text3);margin-top:4px}
+.mic-hint em{color:var(--text2);font-style:normal}
+
+/* Wellness Modal */
+.wellness-modal{position:absolute;inset:0;background:linear-gradient(170deg,#2d1654 0%,#1a0d33 50%,#0f0a1a 100%);z-index:500;padding:58px 20px 100px;overflow-y:auto;scrollbar-width:none}
+.wellness-title{font-size:11px;color:var(--scb-gold);font-weight:600;text-transform:uppercase;letter-spacing:1px;text-align:center}
+.wellness-msg{font-size:20px;font-weight:300;line-height:1.3;margin:12px 0;text-align:center}
+.gauge-peer{font-size:13px;color:var(--text2);text-align:center;margin:8px 0 20px}
+.gauge-peer b{color:#fff}
+.pillar-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pillar-item{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius-sm);padding:16px;text-align:center}
+.pillar-name{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+.pillar-label{font-size:16px;font-weight:700;margin-top:6px}
+.pillar-label.good{color:var(--success)}.pillar-label.average{color:var(--warning)}.pillar-label.below{color:var(--danger)}
+
+/* ===== IMMERSIVE AI HOME ===== */
+.imm-home{display:flex;flex-direction:column;height:100%;position:relative;overflow:hidden}
+
+/* ─── Header ─── */
+.imm-header{padding:52px 20px 0;position:relative;z-index:2;flex-shrink:0}
+.imm-logo-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.imm-scb-logo{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,rgba(108,77,196,.3),rgba(201,168,76,.15));display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:var(--scb-gold)}
+.imm-header-icons{display:flex;gap:8px}
+.imm-header-icon{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.06);border:none;color:var(--text3);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.imm-header-icon:hover{background:rgba(255,255,255,.12);color:#fff}
+.imm-greeting{font-size:21px;font-weight:300;color:#fff;line-height:1.3}
+.imm-greeting strong{font-weight:700}
+.imm-bal-strip{display:flex;align-items:center;gap:10px;margin-top:5px}
+.imm-bal{font-size:11px;font-weight:500;color:rgba(255,255,255,.45);letter-spacing:.3px}
+.imm-bal b{color:#fff;font-size:20px;font-weight:800;letter-spacing:-.3px}
+.imm-coins{display:inline-flex;align-items:center;gap:4px;background:rgba(201,168,76,.12);border-radius:10px;padding:3px 10px;font-size:10px;font-weight:700;color:var(--scb-gold);cursor:pointer;transition:all .2s}
+.imm-coins:hover{background:rgba(201,168,76,.2)}
+.imm-sep{width:1px;height:14px;background:rgba(255,255,255,.1)}
+
+/* ─── Quick actions — horizontal scroll, right below header ─── */
+.imm-actions{display:flex;gap:14px;padding:16px 20px 0;overflow-x:auto;flex-shrink:0;-webkit-overflow-scrolling:touch}
+.imm-actions::-webkit-scrollbar{display:none}
+.imm-act{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;flex-shrink:0;min-width:52px}
+.imm-act-circle{width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:19px;transition:all .2s}
+.imm-act:hover .imm-act-circle{background:rgba(201,168,76,.1);border-color:rgba(201,168,76,.2)}
+.imm-act-label{font-size:9px;color:rgba(255,255,255,.5);font-weight:600;text-align:center;line-height:1.15;white-space:nowrap}
+
+/* ─── Scrollable body ─── */
+.imm-body{flex:1;overflow-y:auto;padding:0 0 120px;-webkit-overflow-scrolling:touch}
+.imm-body::-webkit-scrollbar{display:none}
+
+/* ─── Morning Briefing Banner ─── */
+.imm-brief{margin:16px 20px 0;padding:13px 16px;background:linear-gradient(135deg,rgba(108,77,196,.12),rgba(201,168,76,.05));border:1px solid rgba(108,77,196,.18);border-radius:14px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all .25s;position:relative;overflow:hidden}
+.imm-brief::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(201,168,76,.05),transparent);animation:briefShimmer 4s ease infinite}
+@keyframes briefShimmer{0%{left:-100%}100%{left:200%}}
+.imm-brief:hover{background:linear-gradient(135deg,rgba(108,77,196,.18),rgba(201,168,76,.08));border-color:rgba(201,168,76,.22)}
+.imm-brief-orb{width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 40% 35%,rgba(201,168,76,.35),rgba(108,77,196,.25));display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;box-shadow:0 0 16px rgba(201,168,76,.1)}
+.imm-brief-body{flex:1;min-width:0}
+.imm-brief-title{font-size:13px;font-weight:700;color:#fff}
+.imm-brief-sub{font-size:10px;color:var(--text2);margin-top:1px}
+.imm-brief-arrow{width:22px;height:22px;border-radius:50%;background:rgba(201,168,76,.1);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--scb-gold);flex-shrink:0}
+
+/* ─── Financial context strip ─── */
+.imm-context{display:flex;gap:8px;padding:14px 20px 0}
+.imm-ctx{flex:1;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:12px;padding:10px 12px;text-align:center}
+.imm-ctx-val{font-size:15px;font-weight:800;color:#fff}
+.imm-ctx-label{font-size:9px;color:var(--text3);margin-top:2px;text-transform:uppercase;letter-spacing:.5px}
+
+/* ─── Nudge section label ─── */
+.imm-nudge-header{display:flex;align-items:center;gap:8px;padding:18px 20px 8px}
+.imm-nudge-header-dot{width:6px;height:6px;border-radius:50%;background:var(--scb-gold);flex-shrink:0}
+.imm-nudge-header-text{font-size:11px;font-weight:600;color:rgba(255,255,255,.4);letter-spacing:.5px}
+
+/* ─── Nudge rows ─── */
+.imm-nudges{padding:0 20px 8px;display:flex;flex-direction:column;gap:6px}
+.imm-nudge{background:rgba(26,13,51,.4);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.04);border-radius:14px;padding:12px 14px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:12px}
+.imm-nudge:hover{background:rgba(201,168,76,.07);border-color:rgba(201,168,76,.15)}
+.imm-nudge.alert{border-left:3px solid var(--danger);background:rgba(239,68,68,.04)}
+.imm-nudge.alert:hover{background:rgba(239,68,68,.08)}
+.imm-nudge-icon{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.imm-nudge-body{flex:1;min-width:0}
+.imm-nudge-row1{display:flex;align-items:center;gap:6px;margin-bottom:2px}
+.imm-nudge-badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:7px;font-weight:800;letter-spacing:.4px}
+.imm-nudge-badge.green{background:rgba(22,163,74,.18);color:var(--success)}
+.imm-nudge-badge.gold{background:rgba(201,168,76,.18);color:var(--scb-gold)}
+.imm-nudge-badge.red{background:rgba(239,68,68,.18);color:var(--danger)}
+.imm-nudge-badge.purple{background:rgba(139,92,246,.18);color:#a78bfa}
+.imm-nudge-text{font-size:12px;color:rgba(255,255,255,.6);line-height:1.35}
+.imm-nudge-arrow{font-size:14px;color:var(--text3);flex-shrink:0;opacity:.5}
+
+/* ─── Bottom Jarvis bar ─── */
+.imm-bottom{position:absolute;bottom:0;left:0;right:0;padding:0 16px 18px;background:linear-gradient(transparent,rgba(15,10,26,.95) 25%,rgba(15,10,26,.99));z-index:10;display:flex;flex-direction:column;align-items:center;gap:6px}
+.imm-jarvis-bar{display:flex;align-items:center;gap:12px;width:100%;background:rgba(26,13,51,.7);backdrop-filter:blur(20px);border:1px solid rgba(201,168,76,.1);border-radius:26px;padding:6px 8px 6px 8px;cursor:pointer;transition:all .25s}
+.imm-jarvis-bar:hover{background:rgba(26,13,51,.85);border-color:rgba(201,168,76,.2)}
+.imm-jb-orb{width:40px;height:40px;border-radius:50%;background:radial-gradient(ellipse at 40% 40%,rgba(120,200,255,.35),rgba(200,160,255,.25) 40%,rgba(201,168,76,.1) 70%,transparent);box-shadow:0 0 20px rgba(108,77,196,.15),inset 0 0 15px rgba(255,255,255,.05);flex-shrink:0;animation:miniOrbPulse 3s ease-in-out infinite;position:relative}
+.imm-jb-orb::before{content:'';position:absolute;inset:0;border-radius:50%;background:radial-gradient(ellipse at 55% 30%,rgba(255,255,255,.2),transparent 50%)}
+@keyframes miniOrbPulse{0%,100%{box-shadow:0 0 20px rgba(108,77,196,.15),inset 0 0 15px rgba(255,255,255,.05)}50%{box-shadow:0 0 28px rgba(108,77,196,.22),inset 0 0 15px rgba(255,255,255,.08)}}
+.imm-jb-text{flex:1;font-size:13px;color:rgba(255,255,255,.4)}
+.imm-jb-text em{font-style:normal;color:rgba(255,255,255,.6)}
+.imm-jb-mic{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#c9a84c,#b8952f);border:none;display:flex;align-items:center;justify-content:center;font-size:18px;color:#1a0d33;cursor:pointer;transition:all .2s;flex-shrink:0;box-shadow:0 2px 14px rgba(201,168,76,.3)}
+.imm-jb-mic:hover{transform:scale(1.06);box-shadow:0 4px 22px rgba(201,168,76,.45)}
+.imm-jb-hint{font-size:10px;color:rgba(255,255,255,.25);text-align:center}
+.hs-icon{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:20px;transition:transform .2s}
+.hs-label{font-size:10px;color:var(--text2);font-weight:600;text-align:center;line-height:1.2}
+
+.home-promo{border-radius:var(--radius);overflow:hidden;margin-bottom:12px;position:relative;cursor:pointer}
+.home-promo img{width:100%;height:auto;display:block}
+.home-promo-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:14px 16px;display:flex;gap:12px;align-items:center}
+.home-promo-card:hover{background:rgba(255,255,255,.12)}
+
+/* Portfolio */
+.port-card{display:flex;justify-content:space-between;align-items:center;padding:14px 16px}
+.port-name{font-size:13px;font-weight:600}.port-type{font-size:11px;color:var(--text2)}
+.port-val{text-align:right}.port-amount{font-size:13px;font-weight:700}.port-return{font-size:11px}
+.port-return.up{color:var(--success)}.port-return.down{color:var(--danger)}
+.port-total{display:flex;justify-content:space-between;padding:16px;background:linear-gradient(135deg,#2d1654,var(--scb-purple));border:1px solid rgba(201,168,76,.2);border-radius:var(--radius);margin-bottom:12px}
+.port-total-label{font-size:11px;color:rgba(255,255,255,.5);font-weight:600;text-transform:uppercase;letter-spacing:.5px}.port-total-val{font-size:24px;font-weight:700}
+
+/* Chat */
+.chat-screen{display:flex;flex-direction:column;height:100%}
+/* Chat Header — matches Jarvis FS header */
+.chat-header{padding:52px 16px 12px;display:flex;align-items:center;gap:10px;background:linear-gradient(180deg,rgba(26,13,51,.95) 0%,rgba(15,10,26,.9) 100%);backdrop-filter:blur(30px);flex-shrink:0}
+.chat-header .ch-back{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.08);border:none;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;cursor:pointer;flex-shrink:0}
+.chat-header .ch-info{flex:1;text-align:center}
+.chat-header .ch-name{font-size:14px;font-weight:600;color:#fff}
+.chat-header .ch-sub{font-size:10px;color:var(--scb-gold);font-weight:500;letter-spacing:.5px;text-transform:uppercase;margin-top:1px}
+.chat-header .ch-grid{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.08);border:none;display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;font-size:18px}
+/* Chat Messages */
+.chat-messages{flex:1;overflow-y:auto;padding:12px 16px 100px;display:flex;flex-direction:column;gap:12px;background:linear-gradient(175deg,#1a0d33 0%,#0f0a1a 50%,#1a0d33 80%,rgba(78,42,132,.12) 100%)}
+.chat-messages::-webkit-scrollbar{display:none}
+.chat-msg-row{display:flex;gap:8px;align-items:flex-start;animation:msgIn .4s ease}
+.chat-msg-row.ai{align-self:flex-start}
+.chat-msg-row.user{align-self:flex-end;flex-direction:row-reverse}
+.chat-msg-orb{width:28px;height:28px;border-radius:50%;background:radial-gradient(ellipse at 40% 40%,rgba(120,200,255,.5),rgba(200,160,255,.4) 40%,rgba(201,168,76,.2) 70%,transparent);box-shadow:0 0 12px rgba(108,77,196,.2);flex-shrink:0;margin-top:4px}
+.chat-msg{max-width:80%;padding:12px 16px;border-radius:16px;font-size:14px;line-height:1.55;animation:msgIn .4s ease}
+@keyframes msgIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.chat-msg.ai{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);align-self:flex-start;border-bottom-left-radius:4px}
+.chat-msg.ai .sender{font-size:10px;font-weight:600;color:var(--scb-gold);margin-bottom:4px;letter-spacing:.5px;text-transform:uppercase}
+.chat-msg.user{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.08);align-self:flex-end;border-bottom-right-radius:4px}
+.chat-msg.user .sender{font-size:10px;color:var(--text3);text-align:right;margin-bottom:2px}
+.msg-time{font-size:10px;color:var(--text3);margin-top:4px;text-align:right}
+/* Chat Input — matches Jarvis FS input */
+.chat-input-bar{position:absolute;bottom:0;left:0;right:0;padding:12px 16px 28px;background:linear-gradient(transparent,rgba(15,10,26,.95) 20%);display:flex;gap:8px;align-items:center;z-index:100}
+.chat-input{flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:24px;padding:10px 16px;color:#fff;font-size:13px;outline:none}
+.chat-input::placeholder{color:var(--text3)}
+.chat-mic{width:36px;height:36px;border-radius:50%;background:rgba(201,168,76,.12);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;color:var(--scb-gold)}
+.typing-dots{display:flex;gap:4px;padding:12px 16px;align-self:flex-start}
+.typing-dots span{width:7px;height:7px;border-radius:50%;background:var(--scb-gold);animation:bounce .6s infinite alternate}
+.typing-dots span:nth-child(2){animation-delay:.15s}
+.typing-dots span:nth-child(3){animation-delay:.3s}
+@keyframes bounce{to{transform:translateY(-5px);opacity:.3}}
+
+/* Chat embedded cards */
+.bill-card{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.1);border-radius:16px;padding:16px;margin:8px 0}
+.bill-amount{font-size:28px;font-weight:800;display:flex;align-items:center;gap:8px}
+.bill-label{font-size:12px;color:var(--text2);margin-top:2px}
+.payment-options{margin-top:16px;display:flex;flex-direction:column;gap:8px}
+.pay-option{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.06);border-radius:14px;cursor:pointer;transition:all .2s}
+.pay-option:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.1)}.pay-option.recommended{background:rgba(22,163,74,.06);border-color:rgba(22,163,74,.15)}
+.pay-option-label{font-size:13px;font-weight:600}
+.pay-option-note{font-size:11px;color:var(--success)}.pay-option-note.interest{color:var(--danger)}
+.pay-option-amount{font-size:15px;font-weight:700}
+.bill-due{font-size:12px;color:var(--text2);margin-top:12px;display:flex;align-items:center;gap:6px}
+/* Chat actions — matches Jarvis FS buttons */
+.chat-actions{display:flex;flex-direction:column;gap:10px;margin-top:12px;align-self:stretch}
+.chat-action-btn{display:flex;justify-content:center;align-items:center;gap:4px;padding:14px 20px;border-radius:14px;border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;text-transform:uppercase;letter-spacing:.5px}
+.chat-action-btn:first-child{background:linear-gradient(135deg,var(--scb-gold),#b8933d);color:#1a0d33;box-shadow:0 4px 20px rgba(201,168,76,.25)}
+.chat-action-btn:first-child:hover{transform:translateY(-1px);box-shadow:0 6px 25px rgba(201,168,76,.35)}
+.chat-action-btn:nth-child(n+2){background:transparent;border:1.5px solid rgba(255,255,255,.2);color:#fff}
+.chat-action-btn:nth-child(n+2):hover{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.3)}
+/* Embedded cards — consistent with Jarvis FS cards */
+.pay-confirm-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:16px;margin:8px 0}
+.pay-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:13px}
+.pay-row .label{color:var(--text2)}.pay-row .value{font-weight:700}
+.success-card{background:rgba(22,163,74,.06);border:1px solid rgba(22,163,74,.15);border-radius:16px;padding:20px;text-align:center;margin:8px 0}
+.success-icon{width:56px;height:56px;border-radius:50%;background:var(--success);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:28px}
+.success-title{font-size:18px;font-weight:700;color:var(--success)}
+.success-date{font-size:12px;color:var(--text2);margin-top:4px}
+.success-ref{font-size:11px;color:var(--text3);margin-top:2px}
+.success-details{margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.06)}
+
+/* Quick reply chips — matches Jarvis FS style */
+.quick-replies{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;align-self:stretch}
+.quick-reply{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:10px 16px;font-size:12px;color:#fff;cursor:pointer;transition:all .2s;font-weight:500}
+.quick-reply:hover{background:rgba(201,168,76,.1);border-color:rgba(201,168,76,.25);color:var(--scb-gold)}
+
+/* Opportunity Radar */
+.opp-radar{position:relative;height:260px;margin:8px 0 16px;display:flex;align-items:center;justify-content:center}
+.opp-ring{position:absolute;border-radius:50%;border:1px solid rgba(108,77,196,.1)}
+.opp-ring-1{width:240px;height:240px;border-color:rgba(108,77,196,.08)}.opp-ring-2{width:170px;height:170px;border-color:rgba(108,77,196,.12)}.opp-ring-3{width:100px;height:100px;border-color:rgba(201,168,76,.15);background:radial-gradient(circle,rgba(201,168,76,.08),transparent)}
+.opp-glow{position:absolute;width:80px;height:80px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,.25),rgba(108,77,196,.1),transparent);z-index:1;animation:radarPulse 3s ease infinite}
+@keyframes radarPulse{0%,100%{transform:scale(1);opacity:.8}50%{transform:scale(1.3);opacity:.4}}
+.opp-avatar{width:56px;height:56px;border-radius:50%;background:var(--scb-gold);display:flex;align-items:center;justify-content:center;font-size:26px;z-index:2;box-shadow:0 0 30px rgba(201,168,76,.3)}
+.opp-bubble{position:absolute;background:rgba(45,22,84,.7);backdrop-filter:blur(16px);border:1px solid rgba(201,168,76,.2);border-radius:12px;padding:8px 12px;font-size:11px;font-weight:600;color:#fff;cursor:pointer;transition:all .3s;white-space:nowrap;z-index:3}
+.opp-bubble::before{content:'';position:absolute;width:6px;height:6px;border-radius:50%;background:var(--scb-gold);box-shadow:0 0 8px rgba(201,168,76,.5)}
+.opp-bubble:nth-child(5)::before{bottom:-3px;left:50%;transform:translateX(-50%)}
+.opp-bubble:nth-child(6)::before{bottom:50%;left:-3px}
+.opp-bubble:nth-child(7)::before{top:-3px;left:50%;transform:translateX(-50%)}
+.opp-bubble:nth-child(8)::before{bottom:50%;right:-3px}
+.opp-bubble:nth-child(9)::before{top:50%;right:-3px}
+.opp-bubble:hover{background:rgba(201,168,76,.25);transform:scale(1.05)!important;border-color:rgba(201,168,76,.3)}
+.opp-bubble{animation:float 4s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.opp-bubble:nth-child(5){animation-delay:0s}.opp-bubble:nth-child(6){animation-delay:.8s}.opp-bubble:nth-child(7){animation-delay:1.6s}.opp-bubble:nth-child(8){animation-delay:2.4s}.opp-bubble:nth-child(9){animation-delay:3.2s}
+
+/* Lighthouse */
+.lighthouse-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:16px;margin-bottom:8px;display:flex;gap:12px;align-items:center;cursor:pointer;transition:all .2s}
+.lighthouse-card:hover{background:rgba(255,255,255,.12)}
+.lh-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.lh-text{flex:1}.lh-title{font-size:13px;font-weight:600}.lh-sub{font-size:11px;color:var(--text2);margin-top:2px}
+
+/* Approval Gauge */
+.approval-gauge{position:relative;width:120px;height:120px;margin:12px auto}
+.approval-gauge svg{transform:rotate(-90deg)}
+.approval-pct{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.approval-pct .num{font-size:32px;font-weight:800;color:var(--scb-gold)}
+.approval-pct .lbl{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+
+/* Eligibility checks */
+.elig-check{display:flex;align-items:flex-start;gap:8px;margin:6px 0;font-size:12px}
+.elig-check .elig-icon{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;font-weight:700}
+.elig-check .elig-icon.pass{background:var(--success-bg);color:var(--success)}
+.elig-check .elig-icon.info{background:rgba(108,77,196,.15);color:var(--scb-purple-light)}
+.elig-label{font-weight:600}.elig-value{color:var(--text2)}
+
+/* Match badge */
+.match-badge{display:inline-block;padding:3px 10px;border-radius:10px;font-size:10px;font-weight:700;background:rgba(22,163,74,.15);color:var(--success)}
+.savings-amt{font-size:20px;font-weight:800;color:var(--success);margin-top:6px}
+
+/* Anomaly alert */
+.anomaly-card{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.12);border-radius:16px;padding:16px;margin:8px 0}
+.anomaly-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.anomaly-icon{width:28px;height:28px;border-radius:4px;background:rgba(202,13,41,.1);color:var(--danger);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700}
+
+/* Swipe hint */
+.swipe-hint{text-align:center;padding:8px;font-size:11px;color:var(--text3);animation:swipeHintAnim 2s ease infinite}
+@keyframes swipeHintAnim{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:.7;transform:translateY(-4px)}}
+
+/* Voice Overlay */
+.voice-overlay{position:absolute;inset:0;background:linear-gradient(170deg,#2d1654 0%,#1a0d33 60%,#0f0a1a 100%);z-index:900;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s ease}
+.voice-overlay.active{opacity:1;pointer-events:all}
+.voice-overlay .vo-close{position:absolute;top:60px;right:24px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.1);border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.voice-overlay .vo-status{font-size:12px;color:var(--scb-gold);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:24px}
+.voice-overlay .vo-orb{width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,.25),rgba(108,77,196,.15),transparent);display:flex;align-items:center;justify-content:center;animation:orbPulse 2s ease infinite;position:relative}
+.voice-overlay .vo-orb::before{content:'';position:absolute;inset:-16px;border-radius:50%;border:1px solid rgba(201,168,76,.1);animation:orbRing 2s ease infinite}
+.voice-overlay .vo-orb::after{content:'';position:absolute;inset:-32px;border-radius:50%;border:1px solid rgba(108,77,196,.06);animation:orbRing 2s ease .4s infinite}
+@keyframes orbPulse{0%,100%{transform:scale(1);box-shadow:0 0 40px rgba(201,168,76,.15)}50%{transform:scale(1.08);box-shadow:0 0 60px rgba(201,168,76,.25)}}
+@keyframes orbRing{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(1.05);opacity:.2}}
+.voice-overlay .vo-mic-icon{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--scb-gold),#b8933d);display:flex;align-items:center;justify-content:center;font-size:28px;color:#fff;box-shadow:0 4px 30px rgba(201,168,76,.4)}
+.voice-overlay .vo-waves{display:flex;align-items:center;gap:3px;height:40px;margin:24px 0 16px}
+.voice-overlay .vo-waves span{width:4px;border-radius:2px;background:linear-gradient(var(--scb-gold),var(--accent));animation:voWave 1s ease-in-out infinite alternate}
+.voice-overlay .vo-waves span:nth-child(1){height:12px;animation-delay:0s}
+.voice-overlay .vo-waves span:nth-child(2){height:24px;animation-delay:.1s}
+.voice-overlay .vo-waves span:nth-child(3){height:36px;animation-delay:.15s}
+.voice-overlay .vo-waves span:nth-child(4){height:20px;animation-delay:.25s}
+.voice-overlay .vo-waves span:nth-child(5){height:32px;animation-delay:.3s}
+.voice-overlay .vo-waves span:nth-child(6){height:16px;animation-delay:.4s}
+.voice-overlay .vo-waves span:nth-child(7){height:28px;animation-delay:.45s}
+@keyframes voWave{to{height:6px}}
+.voice-overlay .vo-transcript{font-size:18px;font-weight:300;color:#fff;text-align:center;min-height:28px;margin-bottom:32px;padding:0 30px;opacity:0;transition:opacity .4s}
+.voice-overlay .vo-transcript.show{opacity:1}
+.voice-overlay .vo-prompts{display:flex;flex-direction:column;gap:8px;padding:0 30px;width:100%}
+.voice-overlay .vo-prompts-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;text-align:center;margin-bottom:4px}
+.voice-overlay .vo-prompt{background:rgba(255,255,255,.05);border:1px solid rgba(201,168,76,.12);border-radius:14px;padding:12px 16px;font-size:13px;color:rgba(255,255,255,.7);cursor:pointer;transition:all .2s;text-align:center}
+.voice-overlay .vo-prompt:hover{background:rgba(201,168,76,.1);border-color:rgba(201,168,76,.25);color:#fff}
+
+/* Jarvis Fullscreen — Card Block Flow (Figma-exact) */
+.jarvis-fs{position:absolute;inset:0;z-index:800;background:linear-gradient(175deg,#1a0d33 0%,#0f0a1a 50%,#1a0d33 80%,rgba(78,42,132,.25) 100%);display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .4s ease;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.jarvis-fs.active{opacity:1;pointer-events:all}
+.jarvis-fs-header{display:flex;align-items:center;padding:52px 16px 12px;gap:10px;flex-shrink:0}
+.jarvis-fs-header .jfh-back{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.08);border:none;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.jarvis-fs-header .jfh-title{flex:1;text-align:center;font-size:14px;font-weight:600;color:#fff}
+.jarvis-fs-header .jfh-menu{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.08);border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.jarvis-fs-body{flex:1;display:flex;flex-direction:column;align-items:center;padding:0 24px 100px;overflow-y:auto}
+.jarvis-fs-orb{width:160px;height:160px;border-radius:50%;margin:16px 0 24px;background:radial-gradient(ellipse at 40% 40%,rgba(120,200,255,.4),rgba(200,160,255,.3) 30%,rgba(201,168,76,.15) 60%,transparent 80%);box-shadow:0 0 60px rgba(108,77,196,.2),0 0 100px rgba(201,168,76,.08);animation:orbFloat 4s ease-in-out infinite;position:relative;flex-shrink:0}
+.jarvis-fs-orb::before{content:'';position:absolute;inset:0;border-radius:50%;background:radial-gradient(ellipse at 60% 30%,rgba(255,255,255,.25),transparent 50%);animation:orbShimmer 3s ease infinite alternate}
+.jarvis-fs-orb::after{content:'';position:absolute;inset:-24px;border-radius:50%;border:1px solid rgba(201,168,76,.08);animation:orbRingFs 3s ease infinite}
+@keyframes orbFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes orbShimmer{from{opacity:.5;transform:rotate(0deg)}to{opacity:.9;transform:rotate(20deg)}}
+@keyframes orbRingFs{0%,100%{transform:scale(1);opacity:.4}50%{transform:scale(1.06);opacity:.1}}
+.jarvis-fs-text{font-size:20px;font-weight:500;color:#fff;text-align:center;line-height:1.55;margin-bottom:20px;max-width:320px;animation:fadeUp .6s ease both}
+.jarvis-fs-card{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:16px;margin:8px 0;animation:fadeUp .5s ease both .2s;opacity:0}
+.jarvis-fs-card .jfc-line{font-size:14px;color:#fff;line-height:1.6}
+.jarvis-fs-card .jfc-sub{font-size:12px;color:var(--text2);margin-top:2px}
+.jarvis-fs-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;padding:4px 10px;border-radius:8px;margin-top:8px}
+.jarvis-fs-badge.frozen{background:rgba(234,140,0,.15);color:var(--warning)}
+.jarvis-fs-badge.pending{background:rgba(234,140,0,.15);color:var(--warning)}
+.jarvis-fs-badge.verified{background:rgba(22,163,74,.15);color:var(--success)}
+.jarvis-fs-actions{width:100%;display:flex;flex-direction:column;gap:10px;margin-top:20px;animation:fadeUp .5s ease both .4s;opacity:0}
+.jarvis-fs-btn{width:100%;padding:14px;border-radius:14px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;text-align:center;cursor:pointer;border:none;transition:all .2s}
+.jarvis-fs-btn.primary{background:linear-gradient(135deg,var(--scb-gold),#b8933d);color:#1a0d33;box-shadow:0 4px 20px rgba(201,168,76,.25)}
+.jarvis-fs-btn.primary:hover{transform:translateY(-1px);box-shadow:0 6px 25px rgba(201,168,76,.35)}
+.jarvis-fs-btn.secondary{background:transparent;border:1.5px solid rgba(255,255,255,.2);color:#fff}
+.jarvis-fs-btn.secondary:hover{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.3)}
+.jarvis-fs-creditcard{width:220px;height:138px;border-radius:14px;background:linear-gradient(135deg,#4e2a84 0%,#7b5ea7 30%,#c9a84c 70%,#e8d5a0 100%);margin:16px auto;padding:14px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 8px 30px rgba(0,0,0,.3);position:relative;overflow:hidden;animation:fadeUp .5s ease both .3s;opacity:0}
+.jarvis-fs-creditcard::before{content:'';position:absolute;top:0;right:0;width:80px;height:80px;background:radial-gradient(circle,rgba(255,255,255,.15),transparent);border-radius:50%;transform:translate(20px,-20px)}
+.jarvis-fs-creditcard .jcc-brand{display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:rgba(255,255,255,.9);letter-spacing:1px}
+.jarvis-fs-creditcard .jcc-chip{width:32px;height:24px;border-radius:4px;background:linear-gradient(135deg,#e8d5a0,#c9a84c);margin:4px 0}
+.jarvis-fs-creditcard .jcc-number{font-size:13px;font-weight:500;color:#fff;letter-spacing:2px;font-family:monospace}
+.jarvis-fs-creditcard .jcc-bottom{display:flex;justify-content:space-between;align-items:flex-end}
+.jarvis-fs-creditcard .jcc-nfc{font-size:18px;color:rgba(255,255,255,.6)}
+.jarvis-fs-creditcard .jcc-mc{display:flex;gap:-4px}
+.jarvis-fs-creditcard .jcc-mc span{width:20px;height:20px;border-radius:50%}
+.jarvis-fs-creditcard .jcc-mc span:first-child{background:rgba(235,0,27,.8)}
+.jarvis-fs-creditcard .jcc-mc span:last-child{background:rgba(255,159,0,.8);margin-left:-8px}
+.jarvis-fs-verify{width:100%;display:flex;flex-direction:column;gap:10px;margin-top:12px;animation:fadeUp .5s ease both .3s;opacity:0}
+.jarvis-fs-verify label{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:12px;font-size:13px;color:#fff;cursor:pointer;transition:all .2s}
+.jarvis-fs-verify label:hover{background:rgba(255,255,255,.06)}
+.jarvis-fs-verify input[type=radio]{accent-color:var(--scb-gold);width:18px;height:18px;flex-shrink:0}
+.jarvis-fs-processing{width:100%;background:linear-gradient(135deg,#1a3a8a,#2563eb);border-radius:16px;padding:24px;text-align:center;margin-top:16px;animation:fadeUp .5s ease both .3s;opacity:0}
+.jarvis-fs-processing .jfp-dots{display:flex;justify-content:center;gap:6px;margin-bottom:12px}
+.jarvis-fs-processing .jfp-dots span{width:10px;height:10px;border-radius:50%;background:var(--scb-gold);animation:procDot 1.2s ease infinite}
+.jarvis-fs-processing .jfp-dots span:nth-child(2){animation-delay:.2s}
+.jarvis-fs-processing .jfp-dots span:nth-child(3){animation-delay:.4s}
+@keyframes procDot{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
+.jarvis-fs-processing .jfp-text{font-size:14px;font-weight:600;color:#fff}
+.jarvis-fs-success{width:100%;background:linear-gradient(135deg,#065f46,#059669);border-radius:16px;padding:24px;text-align:center;margin-top:16px;animation:fadeUp .5s ease both}
+.jarvis-fs-success .jfs-icon{font-size:36px;margin-bottom:6px}
+.jarvis-fs-success .jfs-text{font-size:14px;font-weight:600;color:#fff}
+.jarvis-fs-notice{display:flex;align-items:flex-start;gap:8px;padding:10px 14px;background:rgba(255,255,255,.04);border-radius:10px;margin-top:8px;font-size:11px;color:var(--text2);line-height:1.5}
+.jarvis-fs-input{position:absolute;bottom:0;left:0;right:0;padding:12px 16px 32px;background:linear-gradient(transparent,rgba(15,10,26,.95) 20%)}
+.jarvis-fs-input-bar{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:24px;padding:10px 16px}
+.jarvis-fs-input-bar input{flex:1;background:none;border:none;color:#fff;font-size:13px;outline:none}
+.jarvis-fs-input-bar input::placeholder{color:var(--text3)}
+.jarvis-fs-input-bar .jfi-mic{width:32px;height:32px;border-radius:50%;background:rgba(201,168,76,.12);border:none;color:var(--scb-gold);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+
+/* Animations */
+.fade-up{animation:fadeUp .5s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.stagger-1{animation-delay:.1s}.stagger-2{animation-delay:.2s}.stagger-3{animation-delay:.3s}.stagger-4{animation-delay:.4s}.stagger-5{animation-delay:.5s}
+
+/* Agent panel */
+.info-panel{position:fixed;right:20px;top:50%;transform:translateY(-50%);width:340px;background:rgba(26,13,51,.96);border:1px solid rgba(201,168,76,.1);border-radius:var(--radius);padding:24px;backdrop-filter:blur(30px);display:none;max-height:90vh;overflow-y:auto;scrollbar-width:none}
+@media(min-width:800px){.info-panel{display:block}}
+.info-panel h3{font-size:11px;font-weight:600;color:var(--scb-gold);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px}
+.info-panel .info-sub{font-size:12px;color:var(--text3);margin-bottom:16px}
+.agent-mod{padding:10px 12px;border-radius:10px;margin-bottom:6px;background:rgba(255,255,255,.03);border:1px solid transparent;transition:all .3s}
+.agent-mod.active-agent{border-color:rgba(201,168,76,.3);background:rgba(201,168,76,.06)}
+.agent-mod-head{display:flex;align-items:center;gap:8px}
+.agent-mod-dot{width:8px;height:8px;border-radius:50%;background:var(--text3);flex-shrink:0;transition:background .3s}
+.agent-mod.active-agent .agent-mod-dot{background:var(--scb-gold);box-shadow:0 0 8px rgba(201,168,76,.5)}
+.agent-mod-name{font-size:12px;font-weight:700;color:var(--text2)}.agent-mod.active-agent .agent-mod-name{color:#fff}
+.agent-mod-desc{font-size:11px;color:var(--text3);margin-top:3px;margin-left:16px;transition:color .3s}
+.agent-mod.active-agent .agent-mod-desc{color:var(--text2)}
+.info-tag{display:inline-block;padding:3px 10px;border-radius:10px;font-size:10px;font-weight:700;margin:2px;background:rgba(201,168,76,.1);color:var(--scb-gold)}
+.info-journey{margin-top:16px;padding-top:16px;border-top:1px solid var(--glass-border)}
+.info-journey h4{font-size:12px;color:var(--scb-gold);font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+.journey-step{display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;font-size:11px}
+.journey-dot{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;border:2px solid var(--glass-border);color:var(--text3);transition:all .3s}
+.journey-dot.done{background:var(--success);border-color:var(--success);color:#fff}
+.journey-dot.current{background:var(--scb-gold);border-color:var(--scb-gold);color:#fff}
+.journey-label{color:var(--text3);padding-top:2px;transition:color .3s}
+.journey-dot.done+.journey-label,.journey-dot.current+.journey-label{color:var(--text)}
+</style>
+</head>
+<body>
+
+<!-- Agent Panel -->
+<div class="info-panel" id="infoPanel">
+  <h3>Jarvis Agent Pipeline</h3>
+  <div class="info-sub">Real-time modules powering this experience</div>
+  <div class="agent-mod" id="agMod1"><div class="agent-mod-head"><div class="agent-mod-dot"></div><div class="agent-mod-name">1. Financial Health Scorer</div></div><div class="agent-mod-desc" id="ag1Desc">Waiting...</div></div>
+  <div class="agent-mod" id="agMod2"><div class="agent-mod-head"><div class="agent-mod-dot"></div><div class="agent-mod-name">2. Nudge Generator</div></div><div class="agent-mod-desc" id="ag2Desc">Waiting...</div></div>
+  <div class="agent-mod" id="agMod3"><div class="agent-mod-head"><div class="agent-mod-dot"></div><div class="agent-mod-name">3. Task Prioritizer</div></div><div class="agent-mod-desc" id="ag3Desc">Waiting...</div></div>
+  <div class="agent-mod" id="agMod4"><div class="agent-mod-head"><div class="agent-mod-dot"></div><div class="agent-mod-name">4. Insight Engine</div></div><div class="agent-mod-desc" id="ag4Desc">Waiting...</div></div>
+  <div class="agent-mod" id="agMod5"><div class="agent-mod-head"><div class="agent-mod-dot"></div><div class="agent-mod-name">5. Savings Advisor</div></div><div class="agent-mod-desc" id="ag5Desc">Waiting...</div></div>
+  <div class="agent-mod" id="agMod6"><div class="agent-mod-head"><div class="agent-mod-dot"></div><div class="agent-mod-name">6. Alert Engine</div></div><div class="agent-mod-desc" id="ag6Desc">Waiting...</div></div>
+  <div class="agent-mod" id="agMod7"><div class="agent-mod-head"><div class="agent-mod-dot"></div><div class="agent-mod-name">7. Conversational AI</div></div><div class="agent-mod-desc" id="ag7Desc">Waiting...</div></div>
+  <div style="margin-top:12px"></div>
+  <div class="info-journey" id="journeyTracker">
+    <h4>User Journey Progress</h4>
+    <div id="journeySteps"></div>
+  </div>
+</div>
+
+<!-- Phone -->
+<!-- SVG defs for gradient icons -->
+<svg width="0" height="0" style="position:absolute"><defs>
+<linearGradient id="goldGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#c9a84c"/><stop offset="100%" stop-color="#e8d5a0"/></linearGradient>
+</defs></svg>
+<div class="phone">
+  <div class="phone-notch"></div>
+  <div class="status-bar"><span id="statusTime" style="font-weight:600">9:42</span><span style="font-size:11px;color:var(--text2)">&#9679;&#9679;&#9679;</span></div>
+
+  <!-- 1: Lock Screen -->
+  <div class="screen active" id="lockScreen">
+    <div class="lock-screen">
+      <div class="lock-date" id="lockDate">Monday, 13 April</div>
+      <div class="lock-time" id="lockTime">9:42</div>
+      <div class="notification" onclick="navigate('home')">
+        <div class="notif-avatar">&#129302;</div>
+        <div class="notif-content">
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px"><span class="notif-app">SCB EASY &bull; Jarvis</span><span class="notif-time">Now</span></div>
+          <div class="notif-text" id="notifText">Loading...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2: Immersive AI Home -->
+  <div class="screen" id="homeScreen">
+    <div class="imm-home">
+
+      <!-- Header -->
+      <div class="imm-header">
+        <div class="imm-logo-row">
+          <div class="imm-scb-logo">SCB</div>
+          <div class="imm-header-icons">
+            <button class="imm-header-icon" onclick="navigate('profile')" title="Profile">&#9881;</button>
+          </div>
+        </div>
+        <div class="imm-greeting" id="immGreeting"><span id="immName">Eva</span>, light clouds on the financial horizon. <strong>Navigate wisely.</strong></div>
+        <div class="imm-bal-strip">
+          <div class="imm-bal"><span>Savings</span><br><b id="immBal">&#3647;3.49L</b></div>
+          <div class="imm-sep"></div>
+          <div class="imm-coins" onclick="navigate('chat','pointx')">&#9733; <span id="immPts">18,750</span> pts</div>
+        </div>
+      </div>
+
+      <!-- Quick actions — immediately accessible -->
+      <div class="imm-actions">
+        <div class="imm-act" onclick="navigate('chat','transfer')"><div class="imm-act-circle">&#128259;</div><div class="imm-act-label">Transfer</div></div>
+        <div class="imm-act" onclick="navigate('chat','paybills')"><div class="imm-act-circle">&#128196;</div><div class="imm-act-label">Pay Bills</div></div>
+        <div class="imm-act" onclick="navigate('chat','scanqr')"><div class="imm-act-circle">&#128247;</div><div class="imm-act-label">Scan QR</div></div>
+        <div class="imm-act" onclick="navigate('chat','blockcard')"><div class="imm-act-circle">&#128274;</div><div class="imm-act-label">Block Card</div></div>
+        <div class="imm-act" onclick="navigate('chat','topup')"><div class="imm-act-circle">&#128241;</div><div class="imm-act-label">Top Up</div></div>
+      </div>
+
+      <!-- Scrollable Body -->
+      <div class="imm-body">
+
+        <!-- Morning Briefing Banner -->
+        <div class="imm-brief" onclick="navigate('briefing')">
+          <div class="imm-brief-orb">&#9728;</div>
+          <div class="imm-brief-body">
+            <div class="imm-brief-title">Your morning briefing is ready</div>
+            <div class="imm-brief-sub">Your daily financial summary is ready</div>
+          </div>
+          <div class="imm-brief-arrow">&#8250;</div>
+        </div>
+
+        <!-- Financial snapshot -->
+        <div class="imm-context">
+          <div class="imm-ctx"><div class="imm-ctx-val" id="immSpent">&#3647;8.2K</div><div class="imm-ctx-label">Spent this month</div></div>
+          <div class="imm-ctx"><div class="imm-ctx-val">2</div><div class="imm-ctx-label">Bills upcoming</div></div>
+          <div class="imm-ctx"><div class="imm-ctx-val" style="color:var(--success)">+4.2%</div><div class="imm-ctx-label">Portfolio</div></div>
+        </div>
+
+        <!-- Jarvis has noticed -->
+        <div class="imm-nudge-header">
+          <div class="imm-nudge-header-dot"></div>
+          <div class="imm-nudge-header-text">Jarvis has noticed</div>
+        </div>
+        <div class="imm-nudges">
+          <div class="imm-nudge alert" onclick="navigate('chat','anomaly')">
+            <div class="imm-nudge-icon" style="background:rgba(239,68,68,.12)">&#128680;</div>
+            <div class="imm-nudge-body"><div class="imm-nudge-row1"><span class="imm-nudge-badge red">ALERT</span></div><div class="imm-nudge-text">Unusual &#3647;15,800 from Lagos, Nigeria</div></div>
+            <div class="imm-nudge-arrow">&#8250;</div>
+          </div>
+          <div class="imm-nudge" onclick="navigate('chat','insights')">
+            <div class="imm-nudge-icon" style="background:rgba(201,168,76,.12)">&#128200;</div>
+            <div class="imm-nudge-body"><div class="imm-nudge-row1"><span class="imm-nudge-badge gold">WELL DONE</span></div><div class="imm-nudge-text">You spent 20% less this month</div></div>
+            <div class="imm-nudge-arrow">&#8250;</div>
+          </div>
+          <div class="imm-nudge" onclick="navigate('chat','bill')">
+            <div class="imm-nudge-icon" style="background:rgba(239,68,68,.08)">&#128179;</div>
+            <div class="imm-nudge-body"><div class="imm-nudge-row1"><span class="imm-nudge-badge red">ACTION</span></div><div class="imm-nudge-text">Card bill &#3647;12,580 due in 5 days</div></div>
+            <div class="imm-nudge-arrow">&#8250;</div>
+          </div>
+          <div class="imm-nudge" onclick="navigate('chat','portfolio')">
+            <div class="imm-nudge-icon" style="background:rgba(139,92,246,.1)">&#128202;</div>
+            <div class="imm-nudge-body"><div class="imm-nudge-row1"><span class="imm-nudge-badge purple">REVIEW</span></div><div class="imm-nudge-text">4 of 12 funds underperforming</div></div>
+            <div class="imm-nudge-arrow">&#8250;</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Jarvis bar — orb + ask + mic -->
+      <div class="imm-bottom">
+        <div class="imm-jarvis-bar" onclick="navigate('chat')">
+          <div class="imm-jb-orb"></div>
+          <div class="imm-jb-text">Ask Jarvis, like <em>"Block my lost card"</em></div>
+          <button class="imm-jb-mic" onclick="event.stopPropagation();openVoice()">&#127908;</button>
+        </div>
+        <div class="imm-jb-hint">Tap to type &middot; Mic for voice</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 3: Morning Briefing -->
+  <div class="screen" id="briefingScreen">
+    <div style="display:flex;flex-direction:column;height:100%">
+      <div class="scr-header">
+        <div class="scr-nav"><button class="back-btn" onclick="navigate('home')">&#8592;</button><span class="scr-title">My Morning Briefing</span></div>
+        <div class="greeting-text" id="greetingText">Good morning, Ploy</div>
+        <div class="greeting-sub">Here's your hot matcha for the day &#9749;, and your personal briefing</div>
+      </div>
+      <div class="scr-body" id="briefingBody">
+        <div class="section-title">Your Pulse</div>
+        <div class="card-g pulse-card" onclick="showWellness()">
+          <div style="flex:1"><div style="font-size:13px;color:var(--text2)">Financial Health</div><div class="pulse-badge" id="pulseLabel">Good</div></div>
+          <div class="pulse-gauge"><svg width="80" height="80" viewBox="0 0 80 80"><circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="6"/><circle cx="40" cy="40" r="34" fill="none" stroke="url(#gg)" stroke-width="6" stroke-linecap="round" stroke-dasharray="214" id="pulseArc" stroke-dashoffset="214"/><defs><linearGradient id="gg" x1="0%" y1="0%" x2="100%"><stop offset="0%" stop-color="#c9a84c"/><stop offset="100%" stop-color="#4e2a84"/></linearGradient></defs></svg><div class="score" id="pulseScore">0</div></div>
+        </div>
+
+        <div class="section-header" style="margin-top:20px"><div class="section-title" style="margin:0">For you</div><button class="view-all" onclick="navigate('chat','insights')">View All &#8594;</button></div>
+        <div id="nudgesContainer"></div>
+
+        <div class="section-title">Today's Tasks</div>
+        <div id="tasksContainer"></div>
+
+        <!-- Recommended for You Radar -->
+        <div class="section-title">Recommended for You</div>
+        <div class="opp-radar">
+          <div class="opp-ring opp-ring-1"></div>
+          <div class="opp-ring opp-ring-2"></div>
+          <div class="opp-ring opp-ring-3"></div>
+          <div class="opp-glow"></div>
+          <div class="opp-avatar">&#128105;</div>
+          <div class="opp-bubble" style="top:8px;left:50%;transform:translateX(-50%)" onclick="navigate('chat','s2s_card')">&#128179; Get SCB Wealth Card</div>
+          <div class="opp-bubble" style="top:55px;right:4px" onclick="navigate('chat','insights')">&#9888; Dining spend +8%</div>
+          <div class="opp-bubble" style="bottom:55px;right:8px" onclick="navigate('chat','pointx')">&#11088; 18,750 PointX</div>
+          <div class="opp-bubble" style="bottom:10px;left:50%;transform:translateX(-50%)" onclick="navigate('chat','portfolio')">&#128200; Investment opportunity</div>
+          <div class="opp-bubble" style="top:55px;left:4px;background:rgba(22,163,74,.2)" onclick="navigate('chat','insights')">&#10003; Savings +10%</div>
+        </div>
+
+        <!-- Tips & Guides -->
+        <div class="section-title">Tips &amp; Guides</div>
+        <div class="lighthouse-card" onclick="navigate('chat','s2s_card')">
+          <div class="lh-icon" style="background:rgba(201,168,76,.1)">&#128161;</div>
+          <div class="lh-text"><div class="lh-title">How personalized offers can make you a smart spender</div><div class="lh-sub">Based on your dining &amp; travel patterns</div></div>
+        </div>
+        <div class="lighthouse-card" onclick="navigate('chat','insights')">
+          <div class="lh-icon" style="background:rgba(59,130,246,.15)">&#128218;</div>
+          <div class="lh-text"><div class="lh-title">Budgeting 101 &mdash; A quick tutorial for Eva</div><div class="lh-sub">Personalized tips to save &#3647;4,200/month</div></div>
+        </div>
+
+        <div class="section-header"><div class="section-title" style="margin-bottom:0">Key Insights</div><button class="view-all" onclick="navigate('chat','insights')">View All &#8594;</button></div>
+        <div id="insightsContainer"></div>
+        <a class="see-recs" onclick="navigate('chat','insights')">See recommendations &#8594;</a>
+
+        <div class="section-title">Ways to save</div>
+        <div id="spendBarsContainer"></div>
+        <div id="saveTipsContainer"></div>
+      </div>
+      <div class="mic-bar"><div class="mic-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><button class="mic-btn" onclick="openVoice()">&#127908;</button><div class="mic-hint">Ask me anything, like <em>"Pay my electricity bill"</em></div></div>
+    </div>
+    <!-- Wellness Overlay -->
+    <div class="wellness-modal screen" id="wellnessModal">
+      <div class="scr-nav"><button class="back-btn" onclick="hideWellness()">&#8592;</button><span class="scr-title">Financial Wellness</span><button class="menu-btn" onclick="navigate('chat','insights')">&#128172;</button></div>
+      <div class="wellness-title" style="margin-top:12px" id="wellTitle" style="margin-top:8px">Ploy's Financial Wellness Score</div>
+      <div class="wellness-msg" id="wellMsg">You're on track! A few tweaks can strengthen your financial wellness</div>
+      <div style="position:relative;width:200px;height:200px;margin:16px auto"><svg width="200" height="200" viewBox="0 0 200 200"><circle cx="100" cy="100" r="85" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="12"/><circle cx="100" cy="100" r="85" fill="none" stroke="url(#bg)" stroke-width="12" stroke-linecap="round" stroke-dasharray="534" id="bigGaugeArc" stroke-dashoffset="534" transform="rotate(-90 100 100)"/><defs><linearGradient id="bg" x1="0%" y1="0%" x2="100%"><stop offset="0%" stop-color="#c9a84c"/><stop offset="50%" stop-color="#6c4dc4"/><stop offset="100%" stop-color="#4e2a84"/></linearGradient></defs></svg><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-size:48px;font-weight:800;color:var(--scb-gold)" id="bigScore">0</div><div style="font-size:14px;color:var(--text3);margin-top:2px">out of 100</div></div></div>
+      <div class="gauge-peer" id="peerText">You are in the top <b>12%</b> of people your age</div>
+      <div class="pillar-grid" id="pillarGrid"></div>
+    </div>
+  </div>
+
+  <!-- 4: Portfolio -->
+  <div class="screen" id="portfolioScreen">
+    <div style="display:flex;flex-direction:column;height:100%">
+      <div class="scr-header"><div class="scr-nav"><button class="back-btn" onclick="navigate('home')">&#8592;</button><span class="scr-title">My Portfolio</span><button class="menu-btn" onclick="navigate('chat','portfolio')">&#128172;</button></div></div>
+      <div class="scr-body">
+        <div class="port-total"><div><div class="port-total-label">Total Portfolio Value</div><div class="port-total-val" id="portTotal">&#3647; 265,000</div></div><div style="text-align:right"><div class="port-total-label">Overall Return</div><div style="font-size:16px;font-weight:700;color:var(--success)" id="portReturn">+6.0%</div></div></div>
+        <div class="section-title" style="margin-top:4px">Investments</div>
+        <div id="portList"></div>
+        <div class="section-title">Accounts</div>
+        <div id="acctList"></div>
+        <div class="section-title">Market Snapshot</div>
+        <div id="marketList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5: Chat -->
+  <div class="screen" id="chatScreen">
+    <div class="chat-screen">
+      <div class="chat-header">
+        <button class="ch-back" onclick="navigate(lastScreen||'home')">&#8592;</button>
+        <div class="ch-info"><div class="ch-name" id="chatTitle">Jarvis</div><div class="ch-sub">Your AI Banking Assistant</div></div>
+      </div>
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="chat-input-bar"><input type="text" class="chat-input" id="chatInput" placeholder="Ask Jarvis anything..." onkeypress="if(event.key==='Enter')handleChatSend()"><button class="chat-mic" onclick="openVoice()">&#127908;</button></div>
+    </div>
+  </div>
+
+  <!-- 6: Profile -->
+  <div class="screen" id="profileScreen">
+    <div style="display:flex;flex-direction:column;height:100%">
+      <div class="scr-header"><div class="scr-nav"><button class="back-btn" onclick="navigate('home')">&#8592;</button><span class="scr-title">Profile</span><button class="menu-btn" onclick="navigate('chat')">&#128172;</button></div></div>
+      <div class="scr-body">
+        <div style="text-align:center;margin:20px 0"><div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--scb-purple),var(--scb-gold));margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:32px">&#128105;</div><div style="font-size:20px;font-weight:700">Khun Eva</div><div style="font-size:13px;color:var(--text2)">SCB EASY Member</div></div>
+        <div class="section-title">Personal Details</div>
+        <div class="card-g" style="cursor:default"><div class="pay-row"><span class="label">Full Name</span><span class="value" style="font-size:12px">Khun Eva Suthirak</span></div><div class="pay-row"><span class="label">Age</span><span class="value">31</span></div><div class="pay-row"><span class="label">Occupation</span><span class="value" style="font-size:12px">Marketing Manager</span></div><div class="pay-row"><span class="label">Monthly Income</span><span class="value">&#3647; 65,000</span></div><div class="pay-row"><span class="label">Member Since</span><span class="value" style="font-size:12px">March 2019</span></div><div class="pay-row"><span class="label">PointX Balance</span><span class="value" style="color:var(--scb-gold)">18,750 pts</span></div></div>
+        <div class="section-title">Financial Goals</div>
+        <div id="profileGoals"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Voice Overlay -->
+  <!-- Jarvis Fullscreen — Card Block Journey (Figma-exact) -->
+  <div class="jarvis-fs" id="jarvisFs">
+    <div class="jarvis-fs-header">
+      <button class="jfh-back" onclick="closeJarvisFs()">&#8592;</button>
+      <div class="jfh-title" id="jfhTitle">Blocking lost debit card</div>
+    </div>
+    <div class="jarvis-fs-body" id="jfsBody"></div>
+    <div class="jarvis-fs-input">
+      <div class="jarvis-fs-input-bar">
+        <input type="text" id="jfsInput" placeholder="Ask me anything..." onkeydown="if(event.key==='Enter')handleJfsSend()">
+        <button class="jfi-mic" onclick="openVoice()">&#127908;</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="voice-overlay" id="voiceOverlay">
+    <button class="vo-close" onclick="closeVoice()">&#10005;</button>
+    <div class="vo-status" id="voStatus">Listening...</div>
+    <div class="vo-orb"><div class="vo-mic-icon">&#127908;</div></div>
+    <div class="vo-waves" id="voWaves"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="vo-transcript" id="voTranscript"></div>
+    <div class="vo-prompts" id="voPrompts">
+      <div class="vo-prompts-label">Try saying</div>
+      <div class="vo-prompt" onclick="voiceSelect('blockcard')">&#128274; &ldquo;I lost my wallet, block my card&rdquo;</div>
+      <div class="vo-prompt" onclick="voiceSelect('paybills')">&#128196; &ldquo;Pay my electricity bill&rdquo;</div>
+      <div class="vo-prompt" onclick="voiceSelect('transfer')">&#128259; &ldquo;Transfer money to Somchai&rdquo;</div>
+      <div class="vo-prompt" onclick="voiceSelect('insights')">&#128200; &ldquo;Show my spending insights&rdquo;</div>
+    </div>
+  </div>
+
+  <!-- Nav bar removed — conversational-first design -->
+</div>
+
+<script>
+const B={
+  name:"Eva",fullName:"Khun Eva Suthirak",
+  health:{score:62,label:"Good",peer:12,msg:"Eva, you're on track! A few tweaks can strengthen your financial wellness",pillars:{investment:{score:44,label:"Below Average"},borrowing:{score:85,label:"Average"},insurance:{score:55,label:"Average"},liquidity:{score:100,label:"Good"}}},
+  nudges:[{icon:"fitness",text:"You haven't been to Pilates in 2 weeks? ClassPass is offering 30% off!"},{icon:"beauty",text:"Running out of sunscreen? Beautrium is having summer sales — up to 40% off!"},{icon:"travel",text:"Upcoming weekend in Singapore — see which airport lounges are available with your CardX!"},{icon:"wellness",text:"You've been working late 4 nights this week. Here are spa vouchers from PointX just for you!"},{icon:"rewards",text:"You have 18,750 PointX waiting! Redeem for your Singapore trip or convert to airline miles."}],
+  tasks:[{text:"Pay AIS phone bills",done:true,flow:'topup'},{text:"Review CardX statements",done:false,flow:'bill'},{text:"Check SCB Wealth Card offer",done:false,flow:'s2s_card'},{text:"Top up Emergency Fund (84% done!)",done:false,flow:'goals'}],
+  insights:[{icon:"warning",title:"Dining spend up to +8%",sub:"vs last month — you might be overspending",s:"negative"},{icon:"up",title:"Portfolio +3.2% (3M)",sub:"Outperforming benchmark by 1.1%",s:"positive"},{icon:"save",title:"You saved 2,540 THB more this month",sub:"Savings rate now at 22%",s:"positive"}],
+  spending:[{name:"Dining",pct:32,c:"#e74c3c"},{name:"Transport",pct:24,c:"#3498db"},{name:"Shopping",pct:18,c:"#9b59b6"}],
+  saveTip:"Switch to auto-pay to save up to THB 5,000/month to avoid late fees",
+  alert:{card:"CardX",num:"ending 4624",total:22300,due:"April 25, 2026",min:1115,interest:1100,emi:3717,msg:"Your CardX ending 4624 bill is due soon. Paying only the minimum would add up to 1,100 THB in interest."},
+  acct:{name:"SCB Easy Account",num:"XXX-XXX596-3"},
+  investments:[{name:"SCB SET Index Fund",type:"Equity Fund",val:120000,ret:4.8},{name:"S&P500 DCA",type:"Foreign Equity",val:85000,ret:8.2},{name:"SCB Income Plus",type:"Bond Fund",val:45000,ret:3.1},{name:"SCB Gold Fund",type:"Commodity",val:15000,ret:12.4}],
+  accounts:[{name:"SCB Easy Savings",num:"XXX-XXX596-3",bal:185400},{name:"SCB Goal Save",num:"XXX-XXX847-1",bal:163100}],
+  market:{set:1485.16,setChg:0.52,gold:44350,goldChg:1.8,usd:33.85,usdChg:-0.3},
+  goals:[{name:"Emergency Fund",pct:84,current:163100,target:195000},{name:"Japan Trip 2027",pct:40,current:32000,target:80000},{name:"Condo Down Payment",pct:17,current:85000,target:500000}],
+  pointx:18750
+};
+
+// Journey steps tracking
+const JOURNEY_STEPS=[
+  {id:'lock',label:'Push notification received'},
+  {id:'home',label:'App home opened'},
+  {id:'briefing',label:'Morning briefing viewed'},
+  {id:'wellness',label:'Financial wellness explored'},
+  {id:'chat',label:'Jarvis conversation started'},
+  {id:'bill',label:'Bill payment completed'},
+  {id:'insights',label:'Spend insights reviewed'},
+  {id:'anomaly',label:'Fraud alert resolved'},
+  {id:'portfolio',label:'Portfolio reviewed'},
+  {id:'s2s',label:'Card offer — service-to-sales'}
+];
+let completedJourneySteps=new Set(['lock']);
+let currentJourneyStep='lock';
+
+function updateJourneyTracker(){
+  const c=document.getElementById('journeySteps'); if(!c) return;
+  c.innerHTML='';
+  JOURNEY_STEPS.forEach(s=>{
+    const done=completedJourneySteps.has(s.id);
+    const cur=s.id===currentJourneyStep;
+    c.innerHTML+=`<div class="journey-step"><div class="journey-dot ${done?'done':''} ${cur&&!done?'current':''}">${done?'&#10003;':cur?'&#9679;':''}</div><div class="journey-label">${s.label}</div></div>`;
+  });
+}
+
+function markJourney(id){
+  completedJourneySteps.add(id);
+  currentJourneyStep=id;
+  updateJourneyTracker();
+}
+
+// Navigation
+let lastScreen='home';
+let activeTab='home';
+
+function navigate(tab, chatCtx){
+  if(tab==='home'||tab==='briefing'||tab==='portfolio'||tab==='profile'||tab==='chat'){
+    if(tab!=='chat') lastScreen=tab;
+    activeTab=tab;
+    const screenMap={home:'homeScreen',briefing:'briefingScreen',portfolio:'portfolioScreen',profile:'profileScreen',chat:'chatScreen'};
+    document.querySelectorAll('.phone > .screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById(screenMap[tab]).classList.add('active');
+    markJourney(tab==='briefing'?'briefing':tab==='portfolio'?'portfolio':tab==='chat'?'chat':tab);
+    if(tab==='briefing') animatePulse();
+    if(tab==='chat'){
+      highlightAgent(7,'Conversational AI active');
+      if(chatCtx) startChatFlow(chatCtx);
+      else initChat();
+    }
+    if(tab==='briefing') activateBriefingAgents();
+    if(tab==='home') highlightAgent(0,'');
+    if(tab==='portfolio'){highlightAgent(4,'Portfolio analysis');}
+  }
+}
+
+function showWellness(){document.getElementById('wellnessModal').classList.add('active');animateBigGauge();markJourney('wellness');}
+function hideWellness(){document.getElementById('wellnessModal').classList.remove('active');}
+
+// Render
+function render(){
+  document.getElementById('notifText').textContent=`สวัสดีค่ะ ${B.name}! Your morning briefing is ready... a few updates across your spending and goals`;
+
+  // Immersive home
+  document.getElementById('immName').textContent=B.name;
+  const bal=B.accounts[0].bal;
+  document.getElementById('immBal').textContent='\u0E3F'+(bal/100000).toFixed(2)+'L';
+  document.getElementById('immPts').textContent='18,750';
+  var sn=document.getElementById('immSugName');if(sn)sn.textContent=B.name;
+
+  // Briefing screen
+  document.getElementById('greetingText').textContent=`Good morning, ${B.name}`;
+  document.getElementById('pulseLabel').textContent=B.health.label;
+  document.getElementById('wellTitle').textContent=`${B.name}'s Financial Wellness Score`;
+  document.getElementById('wellMsg').textContent=B.health.msg;
+  document.getElementById('peerText').innerHTML=`You are in the top <b>${B.health.peer}%</b> of people your age`;
+  document.getElementById('chatTitle').textContent='Jarvis';
+
+  // Nudges
+  const nc=document.getElementById('nudgesContainer');nc.innerHTML='';
+  const imap={fitness:'&#127947;',beauty:'&#128132;',travel:'&#9992;',wellness:'&#128156;',rewards:'&#11088;'};
+  const nudgeRoute={fitness:'insights',beauty:'insights',travel:'s2s_card',wellness:'pointx',rewards:'pointx'};
+  B.nudges.forEach((n,i)=>{nc.innerHTML+=`<div class="card-g nudge-card fade-up stagger-${i+1}" onclick="navigate('chat','${nudgeRoute[n.icon]||'insights'}')" style="cursor:pointer"><div class="nudge-icon ${n.icon}">${imap[n.icon]}</div><div class="nudge-text">${n.text}</div></div>`;});
+
+  // Tasks
+  const tc=document.getElementById('tasksContainer');tc.innerHTML='';
+  B.tasks.forEach((t,i)=>{tc.innerHTML+=`<div class="card-g task-item fade-up stagger-${i+1}" onclick="${t.done?'toggleTask(this)':`navigate('chat','${t.flow||'insights'}')`}" style="cursor:pointer"><div class="task-check ${t.done?'done':''}">${t.done?'&#10003;':''}</div><span class="task-text ${t.done?'done':''}">${t.text}</span></div>`;});
+
+  // Insights
+  const ic=document.getElementById('insightsContainer');ic.innerHTML='';
+  const icomap={warning:'&#9888;',up:'&#8593;',save:'&#10003;'};
+  const insightRoute={warning:'insights',up:'portfolio',save:'insights'};
+  B.insights.forEach((ins,i)=>{ic.innerHTML+=`<div class="card-g insight-card fade-up stagger-${i+1}" onclick="navigate('chat','${insightRoute[ins.icon]||'insights'}')" style="cursor:pointer"><div class="insight-icon ${ins.s}">${icomap[ins.icon]}</div><div><div class="insight-title">${ins.title}</div><div class="insight-sub">${ins.sub}</div></div></div>`;});
+
+  // Spend bars
+  const sb=document.getElementById('spendBarsContainer');
+  let h='<div class="spend-bars">';B.spending.forEach(s=>{h+=`<div class="spend-bar" style="flex:${s.pct};background:${s.c}"></div>`;});h+='</div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:8px">';B.spending.forEach(s=>{h+=`<div style="text-align:center"><div style="color:${s.c};font-weight:600">${s.name}</div>${s.pct}%</div>`;});h+='</div>';sb.innerHTML=h;
+  document.getElementById('saveTipsContainer').innerHTML=`<div style="font-size:12.5px;color:var(--text2);display:flex;gap:8px;align-items:flex-start"><span>&#9733;</span><span>${B.saveTip}</span></div>`;
+
+  // Pillars
+  const pg=document.getElementById('pillarGrid');pg.innerHTML='';
+  const pn={investment:'Investment',borrowing:'Borrowing',insurance:'Insurance',liquidity:'Liquidity'};
+  for(const[k,v] of Object.entries(B.health.pillars)){const c=v.label==='Good'?'good':v.label==='Below Average'?'below':'average';pg.innerHTML+=`<div class="pillar-item"><div class="pillar-name">${pn[k]}</div><div class="pillar-label ${c}">${v.label.toUpperCase()}</div></div>`;}
+
+  // Profile goals
+  const pGoals=document.getElementById('profileGoals');pGoals.innerHTML='';
+  B.goals.forEach(g=>{pGoals.innerHTML+=`<div class="card-g" style="padding:12px 16px;cursor:pointer" onclick="navigate('chat','goals')"><div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:6px"><span>${g.name}</span><span style="color:var(--scb-gold)">${g.pct}%</span></div><div style="height:5px;border-radius:3px;background:rgba(255,255,255,.1)"><div style="height:100%;border-radius:3px;background:linear-gradient(90deg,var(--scb-purple),var(--scb-gold));width:${g.pct}%"></div></div><div style="font-size:11px;color:var(--text2);margin-top:4px">&#3647; ${g.current.toLocaleString()} / &#3647; ${g.target.toLocaleString()}</div></div>`;});
+
+  // Portfolio
+  const pl=document.getElementById('portList');pl.innerHTML='';
+  B.investments.forEach(i=>{pl.innerHTML+=`<div class="card-g port-card" onclick="navigate('chat','portfolio')" style="cursor:pointer"><div><div class="port-name">${i.name}</div><div class="port-type">${i.type}</div></div><div class="port-val"><div class="port-amount">&#3647; ${i.val.toLocaleString()}</div><div class="port-return up">+${i.ret}%</div></div></div>`;});
+  const al=document.getElementById('acctList');al.innerHTML='';
+  B.accounts.forEach(a=>{al.innerHTML+=`<div class="card-g port-card" onclick="navigate('chat','insights')" style="cursor:pointer"><div><div class="port-name">${a.name}</div><div class="port-type">${a.num}</div></div><div class="port-val"><div class="port-amount">&#3647; ${a.bal.toLocaleString()}</div></div></div>`;});
+  const ml=document.getElementById('marketList');ml.innerHTML=`
+    <div class="card-g port-card"><div><div class="port-name">SET Index</div><div class="port-type">Stock Exchange of Thailand</div></div><div class="port-val"><div class="port-amount">${B.market.set.toLocaleString()}</div><div class="port-return up">+${B.market.setChg}%</div></div></div>
+    <div class="card-g port-card"><div><div class="port-name">Gold</div><div class="port-type">THB per Baht weight</div></div><div class="port-val"><div class="port-amount">&#3647; ${B.market.gold.toLocaleString()}</div><div class="port-return up">+${B.market.goldChg}%</div></div></div>
+    <div class="card-g port-card"><div><div class="port-name">USD/THB</div><div class="port-type">Exchange rate</div></div><div class="port-val"><div class="port-amount">&#3647; ${B.market.usd}</div><div class="port-return ${B.market.usdChg<0?'up':'down'}">${B.market.usdChg}%</div></div></div>`;
+}
+
+function toggleTask(el){const c=el.querySelector('.task-check'),t=el.querySelector('.task-text');c.classList.toggle('done');t.classList.toggle('done');c.innerHTML=c.classList.contains('done')?'&#10003;':'';}
+
+// Gauges
+function animatePulse(){const s=B.health.score,a=document.getElementById('pulseArc'),e=document.getElementById('pulseScore'),C=214;let c=0;a.style.strokeDashoffset=C;e.textContent='0';const f=()=>{c+=2;if(c>s)c=s;e.textContent=c;a.style.strokeDashoffset=C-(c/100)*C;if(c<s)requestAnimationFrame(f);};setTimeout(f,300);}
+function animateBigGauge(){const s=B.health.score,a=document.getElementById('bigGaugeArc'),e=document.getElementById('bigScore'),C=534;let c=0;a.style.strokeDashoffset=C;e.textContent='0';const f=()=>{c+=1;if(c>s)c=s;e.textContent=c;a.style.strokeDashoffset=C-(c/100)*C;if(c<s)requestAnimationFrame(f);};setTimeout(f,200);}
+
+// Agent panel highlighting
+function highlightAgent(idx,desc){
+  for(let i=1;i<=7;i++){document.getElementById('agMod'+i).classList.remove('active-agent');}
+  if(idx>=1&&idx<=7){document.getElementById('agMod'+idx).classList.add('active-agent');if(desc)document.getElementById('ag'+idx+'Desc').textContent=desc;}
+}
+function activateBriefingAgents(){
+  const seq=[[1,`Score: ${B.health.score}/100 (${B.health.label})`],[2,`${B.nudges.length} personalized nudges from behavior signals`],[3,`${B.tasks.length} tasks: bills, cards, goals`],[4,`${B.insights.length} insights: spending +8%, portfolio +3.2%`],[5,`3 categories analyzed, potential &#3647;4,200/month savings`],[6,`2 alerts: CardX bill due + unusual transaction`]];
+  seq.forEach(([i,d],j)=>{setTimeout(()=>{document.getElementById('agMod'+i).classList.add('active-agent');document.getElementById('ag'+i+'Desc').textContent=d;},j*400);});
+}
+
+// Chat
+let billPaid=false;
+function fmtTime(d){let h=d.getHours();const m=String(d.getMinutes()).padStart(2,'0'),ap=h>=12?'PM':'AM';if(h>12)h-=12;if(h===0)h=12;return h+':'+m+' '+ap;}
+
+function addMsg(sender,html,delay){
+  return new Promise(resolve=>{
+    const c=document.getElementById('chatMessages');
+    const makeDiv=()=>{
+      const row=document.createElement('div');row.className='chat-msg-row '+sender;
+      const d=document.createElement('div');d.className='chat-msg '+sender;
+      const t=fmtTime(new Date());
+      d.innerHTML=(sender==='ai'?`<div class="sender">Jarvis</div>`:sender==='user'?`<div class="sender">You said</div>`:'')+html+`<div class="msg-time">${t}</div>`;
+      if(sender==='ai'){const orb=document.createElement('div');orb.className='chat-msg-orb';row.appendChild(orb);}
+      row.appendChild(d);c.appendChild(row);c.scrollTop=c.scrollHeight;resolve();
+    };
+    if(delay&&sender==='ai'){const dots=document.createElement('div');dots.className='typing-dots';dots.innerHTML='<span></span><span></span><span></span>';c.appendChild(dots);c.scrollTop=c.scrollHeight;setTimeout(()=>{dots.remove();makeDiv();},delay);}else{makeDiv();}
+  });
+}
+
+function addActions(actions){const c=document.getElementById('chatMessages');const d=document.createElement('div');d.className='chat-actions';actions.forEach(a=>{d.innerHTML+=`<button class="chat-action-btn" onclick="chatAction('${a.id}')">${a.label}</button>`;});c.appendChild(d);c.scrollTop=c.scrollHeight;}
+
+function addQuickReplies(replies){const c=document.getElementById('chatMessages');const d=document.createElement('div');d.className='quick-replies';replies.forEach(r=>{d.innerHTML+=`<div class="quick-reply" onclick="quickReply('${r.id}','${r.label}')">${r.label}</div>`;});c.appendChild(d);c.scrollTop=c.scrollHeight;}
+
+function initChat(ctx){
+  if(ctx){startChatFlow(ctx);return;}
+  jShow('Jarvis','สวัสดีค่ะ '+B.name+'!<br>Good morning! I\'m Jarvis, your AI banking assistant.',
+    `<div class="jarvis-fs-card"><div class="jfc-line" style="font-size:13px;line-height:1.7">
+      <div style="display:flex;align-items:center;gap:6px;margin:4px 0"><span style="color:var(--danger)">&#9888;</span> Dining spend trending <strong>+8%</strong></div>
+      <div style="display:flex;align-items:center;gap:6px;margin:4px 0"><span style="color:var(--success)">&#10003;</span> You saved <strong>&#3647;2,540 more</strong> this month</div>
+      <div style="display:flex;align-items:center;gap:6px;margin:4px 0"><span style="color:var(--scb-gold)">&#128179;</span> Pre-approved SCB Wealth Card</div>
+    </div></div>`,
+    [{id:'paybills',label:'PAY MY BILLS',p:1},{id:'scanqr',label:'SCAN QR',p:0},{id:'insights',label:'SPEND INSIGHTS',p:0},{id:'anomaly',label:'UNUSUAL TRANSACTION',p:0},{id:'s2s_card',label:'CARD OFFER',p:0}]);
+}
+
+async function quickReply(id){startChatFlow(id);}
+
+// Generic Jarvis Fullscreen renderer — all flows use this
+function jShow(title,text,cardsHTML,btns){
+  document.getElementById('jfhTitle').textContent=title;
+  const body=document.getElementById('jfsBody');
+  let h='<div class="jarvis-fs-orb"></div>';
+  h+=`<div class="jarvis-fs-text">${text}</div>`;
+  if(cardsHTML) h+=cardsHTML;
+  if(btns&&btns.length){
+    h+='<div class="jarvis-fs-actions">';
+    btns.forEach((b,i)=>{
+      const cls=i===0?'primary':'secondary';
+      h+=`<button class="jarvis-fs-btn ${cls}" onclick="jAction('${b.id}')">${b.label}</button>`;
+    });
+    h+='</div>';
+  }
+  body.innerHTML=h;
+  document.getElementById('jarvisFs').classList.add('active');
+}
+
+function startChatFlow(flow){
+  const d=B.alert;
+  if(flow==='bill'){
+    if(billPaid){
+      jShow('Card Bill','Your '+d.card+' '+d.num+' bill has already been paid this cycle!',
+        '<div class="jarvis-fs-success"><div class="jfs-icon">&#10003;</div><div class="jfs-text">&#3647; '+d.total.toLocaleString()+'.00 — Full payment</div></div>',
+        [{id:'insights',label:'SPEND INSIGHTS'},{id:'s2s_card',label:'CARD OFFER'},{id:'portfolio',label:'PORTFOLIO'}]);
+    } else {
+      jShow('Card Bill',d.msg,
+        `<div class="jarvis-fs-card"><div style="font-size:28px;font-weight:800;text-align:center">&#9888; ${d.total.toLocaleString()} THB</div><div class="jfc-sub" style="text-align:center">Total bill for April 2026 &bull; Due: ${d.due}</div></div>
+         <div class="jarvis-fs-card" onclick="jAction('payMin')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div><div class="jfc-line">Minimum payment</div><div class="jfc-sub" style="color:var(--danger)">+THB ${d.interest.toLocaleString()} interest</div></div><div style="font-size:15px;font-weight:700">THB ${d.min.toLocaleString()}</div></div>
+         <div class="jarvis-fs-card" onclick="jAction('payFull')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-color:rgba(22,163,74,.2)"><div><div class="jfc-line">Full payment</div><div class="jfc-sub" style="color:var(--success)">No interest</div></div><div style="font-size:15px;font-weight:700">THB ${d.total.toLocaleString()}</div></div>
+         <div class="jarvis-fs-card" onclick="jAction('payEmi')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div><div class="jfc-line">6-month installment</div><div class="jfc-sub">0% interest</div></div><div style="font-size:15px;font-weight:700">THB ${d.emi.toLocaleString()}/mo</div></div>`,
+        [{id:'payFull',label:'PAY FULL AMOUNT NOW'},{id:'statements',label:'VIEW STATEMENTS'}]);
+    }
+  }
+  else if(flow==='insights'){
+    markJourney('insights');
+    jShow('Spend Insights','Here are your spending insights for April, '+B.name,
+      `<div class="jarvis-fs-card"><div style="font-size:13px;font-weight:600;margin-bottom:8px">Top spending categories</div><div style="display:flex;gap:6px;height:6px;margin-bottom:8px"><div style="flex:32;background:#e74c3c;border-radius:3px"></div><div style="flex:24;background:#3498db;border-radius:3px"></div><div style="flex:18;background:#9b59b6;border-radius:3px"></div></div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2)"><span>Dining 32%</span><span>Transport 24%</span><span>Shopping 18%</span></div></div>
+       <div class="jarvis-fs-card"><div class="jfc-line" style="font-size:13px;line-height:1.8">&#9888; Dining spend <strong>+8% vs last month</strong><br>&#10003; Savings rate <strong>22%</strong> — top 15% of age group<br>&#128200; Portfolio <strong>+3.2%</strong> — beating SET by 1.1%</div></div>`,
+      [{id:'s2s_card',label:'VIEW CARD OFFERS'},{id:'portfolio',label:'MY PORTFOLIO'},{id:'pointx',label:'USE POINTX'}]);
+  }
+  else if(flow==='transfer'){
+    jShow('Transfer','Who would you like to transfer to, '+B.name+'?',
+      `<div class="jarvis-fs-card" onclick="jAction('transferDone')" style="cursor:pointer;display:flex;gap:12px;align-items:center"><div style="font-size:20px">&#128100;</div><div><div class="jfc-line">Khun Somchai</div><div class="jfc-sub">SCB xxx-4521 &bull; Last: &#3647;5,000</div></div></div>
+       <div class="jarvis-fs-card" onclick="jAction('transferDone')" style="cursor:pointer;display:flex;gap:12px;align-items:center"><div style="font-size:20px">&#128100;</div><div><div class="jfc-line">Khun Nida</div><div class="jfc-sub">KBank xxx-8832 &bull; Last: &#3647;1,500</div></div></div>
+       <div class="jarvis-fs-card" onclick="jAction('transferDone')" style="cursor:pointer;display:flex;gap:12px;align-items:center"><div style="font-size:20px">&#10133;</div><div><div class="jfc-line">New recipient</div><div class="jfc-sub">Enter account number or PromptPay</div></div></div>`,
+      [{id:'paybills',label:'PAY BILLS'},{id:'insights',label:'SPEND INSIGHTS'}]);
+  }
+  else if(flow==='topup'){
+    jShow('Top Up','What would you like to top up, '+B.name+'?',
+      `<div class="jarvis-fs-card" onclick="jAction('topupDone')" style="cursor:pointer;display:flex;gap:12px;align-items:center"><div style="font-size:20px">&#128241;</div><div><div class="jfc-line">AIS Mobile 091-xxx-4567</div><div class="jfc-sub">Last top-up: &#3647;300 on Apr 5</div></div></div>
+       <div class="jarvis-fs-card" onclick="jAction('topupDone')" style="cursor:pointer;display:flex;gap:12px;align-items:center"><div style="font-size:20px">&#128652;</div><div><div class="jfc-line">Rabbit Card</div><div class="jfc-sub">Balance: &#3647;85 — Recommend &#3647;500</div></div></div>
+       <div class="jarvis-fs-card" onclick="jAction('topupDone')" style="cursor:pointer;display:flex;gap:12px;align-items:center"><div style="font-size:20px">&#9889;</div><div><div class="jfc-line">E-Wallet: TrueMoney</div><div class="jfc-sub">Quick top-up from savings</div></div></div>`,
+      [{id:'transfer',label:'TRANSFER MONEY'},{id:'insights',label:'INSIGHTS'}]);
+  }
+  else if(flow==='scanqr'){
+    jShow('Scan & Pay','Point your camera at any PromptPay or Thai QR Payment code',
+      `<div style="width:140px;height:140px;border:2px solid var(--scb-gold);border-radius:16px;margin:0 auto 16px;position:relative"><div style="position:absolute;top:0;left:0;width:24px;height:24px;border-top:3px solid var(--scb-gold);border-left:3px solid var(--scb-gold);border-radius:6px 0 0 0"></div><div style="position:absolute;top:0;right:0;width:24px;height:24px;border-top:3px solid var(--scb-gold);border-right:3px solid var(--scb-gold);border-radius:0 6px 0 0"></div><div style="position:absolute;bottom:0;left:0;width:24px;height:24px;border-bottom:3px solid var(--scb-gold);border-left:3px solid var(--scb-gold);border-radius:0 0 0 6px"></div><div style="position:absolute;bottom:0;right:0;width:24px;height:24px;border-bottom:3px solid var(--scb-gold);border-right:3px solid var(--scb-gold);border-radius:0 0 6px 0"></div></div>
+       <div class="jarvis-fs-card" onclick="jAction('scanqrDone')" style="cursor:pointer;display:flex;gap:12px;align-items:center"><div style="font-size:20px">&#127977;</div><div><div class="jfc-line">7-Eleven Siam Paragon</div><div class="jfc-sub">Last: &#3647;85 &bull; 2 days ago</div></div></div>
+       <div class="jarvis-fs-card" onclick="jAction('scanqrDone')" style="cursor:pointer;display:flex;gap:12px;align-items:center"><div style="font-size:20px">&#9749;</div><div><div class="jfc-line">Cafe Amazon</div><div class="jfc-sub">Last: &#3647;120 &bull; 3 days ago</div></div></div>`,
+      [{id:'transfer',label:'TRANSFER INSTEAD'},{id:'paybills',label:'PAY BILLS'}]);
+  }
+  else if(flow==='paybills'){
+    jShow('Pay Bills','Which bill would you like to pay, '+B.name+'?',
+      `<div class="jarvis-fs-card" onclick="jAction('paybillDone')" style="cursor:pointer;display:flex;gap:10px;align-items:center"><div style="font-size:18px;width:32px;height:32px;border-radius:8px;background:rgba(239,68,68,.15);display:flex;align-items:center;justify-content:center">&#9889;</div><div style="flex:1"><div class="jfc-line">Metropolitan Electricity</div><div class="jfc-sub">Account: 41-xxxx-5892</div></div><div style="text-align:right"><div style="font-weight:700">&#3647;2,340</div><div style="font-size:10px;color:var(--danger)">Due Apr 20</div></div></div>
+       <div class="jarvis-fs-card" onclick="jAction('paybillDone')" style="cursor:pointer;display:flex;gap:10px;align-items:center"><div style="font-size:18px;width:32px;height:32px;border-radius:8px;background:rgba(59,130,246,.15);display:flex;align-items:center;justify-content:center">&#128167;</div><div style="flex:1"><div class="jfc-line">Provincial Waterworks</div><div class="jfc-sub">Account: 23-xxxx-4401</div></div><div style="text-align:right"><div style="font-weight:700">&#3647;580</div><div style="font-size:10px;color:var(--warning)">Due Apr 25</div></div></div>
+       <div class="jarvis-fs-card" onclick="jAction('paybillDone')" style="cursor:pointer;display:flex;gap:10px;align-items:center"><div style="font-size:18px;width:32px;height:32px;border-radius:8px;background:rgba(139,92,246,.15);display:flex;align-items:center;justify-content:center">&#128241;</div><div style="flex:1"><div class="jfc-line">AIS Mobile 091-xxx-4567</div><div class="jfc-sub">Postpaid plan</div></div><div style="text-align:right"><div style="font-weight:700">&#3647;899</div><div style="font-size:10px;color:var(--text2)">Due Apr 28</div></div></div>
+       <div class="jarvis-fs-card" onclick="jAction('paybillDone')" style="cursor:pointer;display:flex;gap:10px;align-items:center"><div style="font-size:18px;width:32px;height:32px;border-radius:8px;background:rgba(234,140,0,.15);display:flex;align-items:center;justify-content:center">&#128187;</div><div style="flex:1"><div class="jfc-line">TRUE Internet</div><div class="jfc-sub">Fiber 1 Gbps plan</div></div><div style="text-align:right"><div style="font-weight:700">&#3647;1,199</div><div style="font-size:10px;color:var(--text2)">Due May 5</div></div></div>`,
+      [{id:'payAllBills',label:'PAY ALL BILLS (&#3647;5,018)'},{id:'scanqr',label:'SCAN QR INSTEAD'}]);
+  }
+  else if(flow==='cardless'){
+    jShow('Cardless ATM','Choose a withdrawal amount, '+B.name,
+      `<div class="jarvis-fs-card" onclick="jAction('cardlessDone')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div class="jfc-line">&#3647; 1,000</div><div class="jfc-sub">Quick withdraw</div></div>
+       <div class="jarvis-fs-card" onclick="jAction('cardlessDone')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div class="jfc-line">&#3647; 5,000</div><div class="jfc-sub">Standard</div></div>
+       <div class="jarvis-fs-card" onclick="jAction('cardlessDone')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div class="jfc-line">&#3647; 10,000</div><div class="jfc-sub">Maximum</div></div>
+       <div class="jarvis-fs-notice"><span>&#128205;</span><span>Nearest ATM: SCB Siam Paragon — 350m</span></div>`,
+      [{id:'transfer',label:'TRANSFER INSTEAD'},{id:'insights',label:'SPEND INSIGHTS'}]);
+  }
+  else if(flow==='goals'){
+    jShow('Financial Goals','Here are your goals, '+B.name,
+      B.goals.map(g=>`<div class="jarvis-fs-card"><div style="display:flex;justify-content:space-between;font-size:14px;font-weight:600;margin-bottom:6px"><span>${g.name}</span><span style="color:var(--scb-gold)">${g.pct}%</span></div><div style="height:5px;border-radius:3px;background:rgba(255,255,255,.1);margin-bottom:4px"><div style="height:100%;border-radius:3px;background:linear-gradient(90deg,var(--scb-purple),var(--scb-gold));width:${g.pct}%"></div></div><div class="jfc-sub">&#3647; ${g.current.toLocaleString()} / &#3647; ${g.target.toLocaleString()}</div></div>`).join('')+
+      '<div class="jarvis-fs-notice"><span>&#128161;</span><span>Increase savings by &#3647;2,000/mo to hit Emergency Fund 3 months sooner</span></div>',
+      [{id:'insights',label:'SPEND INSIGHTS'},{id:'portfolio',label:'MY PORTFOLIO'}]);
+  }
+  else if(flow==='pointx'){
+    jShow('PointX Rewards','You have <span style="color:var(--scb-gold)">18,750 PointX</span>!',
+      `<div class="jarvis-fs-card" onclick="jAction('pointxTravel')" style="cursor:pointer;display:flex;gap:12px;align-items:center"><div style="font-size:22px">&#9992;</div><div><div class="jfc-line">Convert to Airline Miles</div><div class="jfc-sub">18,750 pts = 4,687 miles</div></div></div>
+       <div class="jarvis-fs-card" onclick="jAction('pointxCash')" style="cursor:pointer;display:flex;gap:12px;align-items:center"><div style="font-size:22px">&#128176;</div><div><div class="jfc-line">Cashback to Account</div><div class="jfc-sub">18,750 pts = &#3647;750</div></div></div>
+       <div class="jarvis-fs-card" onclick="jAction('pointxSpa')" style="cursor:pointer;display:flex;gap:12px;align-items:center"><div style="font-size:22px">&#128156;</div><div><div class="jfc-line">Redeem Spa Voucher</div><div class="jfc-sub">Let's Away Spa — 5,000 pts</div></div></div>
+       <div class="jarvis-fs-notice"><span>&#128161;</span><span>You earn 2x PointX on dining. Upgrade card to earn 3x!</span></div>`,
+      [{id:'s2s_card',label:'UPGRADE MY CARD'},{id:'insights',label:'SPEND INSIGHTS'}]);
+  }
+  else if(flow==='portfolio'){
+    markJourney('portfolio');
+    jShow('Portfolio','Here\'s your portfolio snapshot, '+B.name,
+      `<div class="jarvis-fs-card" style="text-align:center"><div class="jfc-sub">Total Portfolio Value</div><div style="font-size:28px;font-weight:800;margin:4px 0">&#3647; 265,000</div><div style="color:var(--success);font-size:14px;font-weight:600">+6.0% overall</div></div>
+       <div class="jarvis-fs-card"><div class="jfc-line" style="font-size:13px;line-height:1.8">&#128200; Best: SCB Gold Fund <strong>+12.4%</strong><br>&#128201; SET Index: 1,485 (+0.52% today)<br>&#128161; Consider increasing monthly contribution</div></div>`,
+      [{id:'dca',label:'DCA INVESTMENT'},{id:'goals',label:'MY GOALS'},{id:'insights',label:'SPEND INSIGHTS'}]);
+  }
+  else if(flow==='dca'){
+    jShow('DCA Investment','Monthly S&P500 DCA summary',
+      `<div class="jarvis-fs-card"><div class="jfc-line" style="font-size:13px;line-height:2">Fund: S&P500 DCA (via SCB)<br>Amount: &#3647; 5,000.00<br>From: ${B.acct.num}<br>Return: <span style="color:var(--success)">+8.2% YTD</span></div></div>`,
+      [{id:'confirmDca',label:'CONFIRM DCA ORDER'},{id:'changeDca',label:'CHANGE AMOUNT'}]);
+  }
+  else if(flow==='anomaly'){
+    jShow('Fraud Alert','I detected an unusual transaction on your account, '+B.name,
+      `<div class="jarvis-fs-card" style="border-color:rgba(239,68,68,.2)">
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><span style="font-size:20px">&#9888;</span><div><div class="jfc-line" style="font-weight:700">Unusual Transaction</div><div class="jfc-sub">2 minutes ago</div></div></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px"><span style="color:var(--text2)">Merchant</span><span style="font-weight:600">Online Store XYZ</span></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px"><span style="color:var(--text2)">Amount</span><span style="font-weight:600;color:var(--danger)">&#3647; 15,800.00</span></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px"><span style="color:var(--text2)">Card</span><span style="font-weight:600">CardX ending 4624</span></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px"><span style="color:var(--text2)">Location</span><span style="font-weight:600;color:var(--danger)">Lagos, Nigeria</span></div>
+        <div class="jfc-sub" style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.06)">&#128274; Card temporarily held for your protection</div>
+      </div>`,
+      [{id:'anomalyYes',label:"YES, THAT'S ME"},{id:'anomalyNo',label:'NO — BLOCK CARD'}]);
+  }
+  else if(flow==='s2s_card'){
+    markJourney('s2s');
+    jShow('Card Offer',B.name+', I found the perfect card for you based on your spending patterns',
+      `<div class="jarvis-fs-creditcard"><div class="jcc-brand"><span>SCB EASY</span><span>SCB &#9826;</span></div><div class="jcc-chip"></div><div class="jcc-number">SCB Wealth Platinum</div><div class="jcc-bottom"><div class="jcc-nfc">&#8942;))</div><div class="jcc-mc"><span></span><span></span></div></div></div>
+       <div class="jarvis-fs-card"><div class="jfc-line" style="font-size:13px;line-height:1.9">&#128200; 25% off at hotel restaurants<br>&#127873; First year fee waived<br>&#9992; Free airport lounge access<br>&#11088; 2x PointX on dining &amp; travel<br><br><span style="color:var(--scb-gold);font-weight:700">Save &#3647; 1,240/month</span> <span style="font-size:11px;color:var(--text2)">based on your spend</span></div></div>`,
+      [{id:'seeDetails',label:'SEE ELIGIBILITY DETAILS'},{id:'exploreCards',label:'EXPLORE OTHER OPTIONS'}]);
+  }
+  else if(flow==='blockcard'){
+    openJarvisFs();
+  }
+}
+
+// Unified action handler for Jarvis fullscreen
+function jAction(id){
+  const flowIds=['bill','insights','portfolio','paybills','scanqr','transfer','topup','cardless','goals','pointx','s2s_card','dca','anomaly','blockcard'];
+  if(flowIds.includes(id)){startChatFlow(id);return;}
+  const d=B.alert;
+  if(id==='payFull'||id==='payMin'){
+    jShow('Confirm Payment','Confirm your payment, '+B.name,
+      `<div class="jarvis-fs-card"><div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px"><span style="color:var(--text2)">Amount</span><span style="font-weight:700">${d.total.toLocaleString()}.00 THB</span></div><div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px"><span style="color:var(--text2)">From</span><span style="font-weight:700">${B.acct.num}</span></div><div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px"><span style="color:var(--text2)">To</span><span style="font-weight:700">CardX Biller</span></div></div>`,
+      [{id:'confirmPay',label:'CONFIRM PAYMENT'},{id:'bill',label:'CHANGE OPTIONS'}]);
+  }
+  else if(id==='confirmPay'){
+    billPaid=true;markJourney('bill');
+    const ref='20260413D2e46KCou3R0e80';
+    jShow('Payment Successful','Thank you, '+B.name+'!<br>Your credit card payment has been received.',
+      `<div class="jarvis-fs-success"><div class="jfs-icon">&#10003;</div><div class="jfs-text">&#3647; ${d.total.toLocaleString()}.00 paid</div></div>
+       <div class="jarvis-fs-card"><div class="jfc-sub">Reference: ${ref}</div></div>`,
+      [{id:'insights',label:'SPEND INSIGHTS'},{id:'s2s_card',label:'CARD OFFERS'},{id:'home',label:'BACK TO HOME'}]);
+  }
+  else if(id==='payEmi'){
+    jShow('Installment Plan','6-month installment with 0% interest',
+      `<div class="jarvis-fs-card"><div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px"><span style="color:var(--text2)">Monthly</span><span style="font-weight:700">&#3647; ${d.emi.toLocaleString()}/mo</span></div><div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px"><span style="color:var(--text2)">Interest</span><span style="font-weight:700;color:var(--success)">0%</span></div><div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px"><span style="color:var(--text2)">Total</span><span style="font-weight:700">&#3647; ${d.total.toLocaleString()}</span></div></div>`,
+      [{id:'confirmPay',label:'CONFIRM INSTALLMENT'},{id:'bill',label:'BACK TO OPTIONS'}]);
+  }
+  else if(id==='statements'){
+    jShow('Statements','Recent CardX activity, '+B.name,
+      `<div class="jarvis-fs-card"><div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px"><span style="color:var(--text2)">12 Apr — Grab</span><span style="font-weight:600">&#3647; 185</span></div><div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px"><span style="color:var(--text2)">11 Apr — Central Dept</span><span style="font-weight:600">&#3647; 3,450</span></div><div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px"><span style="color:var(--text2)">10 Apr — Siam Paragon F&B</span><span style="font-weight:600">&#3647; 890</span></div><div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px"><span style="color:var(--text2)">9 Apr — Amazon.co.th</span><span style="font-weight:600">&#3647; 1,200</span></div><div style="border-top:1px solid rgba(255,255,255,.06);margin-top:6px;padding-top:6px;display:flex;justify-content:space-between;font-size:13px"><span style="font-weight:600">Total</span><span style="font-weight:700;color:var(--danger)">&#3647; ${d.total.toLocaleString()}</span></div></div>`,
+      [{id:'bill',label:'PAY BILL'},{id:'insights',label:'SPEND INSIGHTS'}]);
+  }
+  else if(id==='seeDetails'){
+    jShow('Eligibility','Great news, '+B.name+'!<br>Based on your profile:',
+      `<div class="jarvis-fs-card" style="text-align:center"><div class="jfc-sub" style="text-transform:uppercase;letter-spacing:1px;color:var(--scb-gold)">Approval Probability</div><div style="font-size:48px;font-weight:800;color:var(--scb-gold);margin:8px 0">80%</div><div class="jfc-sub">Likely approved</div></div>
+       <div class="jarvis-fs-card"><div class="jfc-line" style="font-size:13px;line-height:2">&#10003; Income: THB 65,000/mo verified<br>&#10003; Clean payment history<br>&#10003; Debt-to-income: 28%<br>&#8593; Expected limit: <span style="color:var(--scb-gold);font-weight:600">THB 250,000–300,000</span></div></div>`,
+      [{id:'applyCard',label:'APPLY NOW'},{id:'exploreCards',label:'EXPLORE OTHER OPTIONS'}]);
+  }
+  else if(id==='exploreCards'){
+    jShow('Compare Cards','Cards that match your profile',
+      `<div class="jarvis-fs-card" onclick="jAction('applyCard')" style="cursor:pointer;border-color:var(--scb-gold)"><div style="display:flex;justify-content:space-between"><div class="jfc-line" style="font-weight:700">SCB Wealth Platinum</div><div class="jarvis-fs-badge" style="background:rgba(201,168,76,.15);color:var(--scb-gold);margin:0">95%</div></div><div class="jfc-sub">2x PointX &bull; Lounge &bull; Save &#3647;1,240/mo</div></div>
+       <div class="jarvis-fs-card" onclick="jAction('applyCard')" style="cursor:pointer"><div style="display:flex;justify-content:space-between"><div class="jfc-line" style="font-weight:700">SCB M Luxe</div><div class="jarvis-fs-badge" style="background:rgba(59,130,246,.12);color:#3498db;margin:0">87%</div></div><div class="jfc-sub">5x PointX dining &bull; Michelin &bull; Save &#3647;980/mo</div></div>
+       <div class="jarvis-fs-card" onclick="jAction('applyCard')" style="cursor:pointer"><div style="display:flex;justify-content:space-between"><div class="jfc-line" style="font-weight:700">SCB Travel Card</div><div class="jarvis-fs-badge" style="background:rgba(234,140,0,.12);color:#ea8c00;margin:0">78%</div></div><div class="jfc-sub">3x miles &bull; 0% FX &bull; Airport fast track</div></div>`,
+      [{id:'seeDetails',label:'SEE ELIGIBILITY'},{id:'insights',label:'SPEND INSIGHTS'}]);
+  }
+  else if(id==='applyCard'){
+    markJourney('s2s');
+    jShow('Card Approved!','Excellent choice, '+B.name+'!<br>Since you\'re pre-approved, it\'s instant.',
+      '<div class="jarvis-fs-success"><div class="jfs-icon">&#10003;</div><div class="jfs-text">Application Approved!<br><span style="font-size:12px;font-weight:400;opacity:.8">SCB Wealth Platinum by CardX</span></div></div><div class="jarvis-fs-notice"><span>&#128230;</span><span>Physical card arrives in 5-7 business days. Virtual card ready now in SCB EASY.</span></div>',
+      [{id:'pointx',label:'USE POINTX'},{id:'insights',label:'SPEND INSIGHTS'},{id:'home',label:'BACK TO HOME'}]);
+  }
+  else if(id==='anomalyNo'){
+    startChatFlow('blockcard');
+  }
+  else if(id==='anomalyYes'){
+    markJourney('anomaly');
+    jShow('Transaction Verified','Got it! I\'ve verified the transaction and released the hold. Your card is fully active again.',
+      '<div class="jarvis-fs-success"><div class="jfs-icon">&#10003;</div><div class="jfs-text">Card Active</div></div><div class="jarvis-fs-notice"><span>&#128161;</span><span>Tip: Add trusted locations in card settings to avoid future holds when you travel.</span></div>',
+      [{id:'insights',label:'SPEND INSIGHTS'},{id:'s2s_card',label:'CARD OFFERS'},{id:'home',label:'BACK TO HOME'}]);
+  }
+  else if(id==='transferDone'){
+    jShow('Transfer Complete','Transfer completed!',
+      '<div class="jarvis-fs-success"><div class="jfs-icon">&#10003;</div><div class="jfs-text">&#3647; 5,000.00 sent<br><span style="font-size:12px;font-weight:400;opacity:.8">From '+B.acct.num+'</span></div></div>',
+      [{id:'paybills',label:'PAY BILLS'},{id:'insights',label:'INSIGHTS'},{id:'home',label:'BACK TO HOME'}]);
+  }
+  else if(id==='topupDone'){
+    jShow('Top-Up Complete','Top-up successful!',
+      '<div class="jarvis-fs-success"><div class="jfs-icon">&#10003;</div><div class="jfs-text">Amount credited<br><span style="font-size:12px;font-weight:400;opacity:.8">From '+B.acct.num+'</span></div></div>',
+      [{id:'transfer',label:'TRANSFER'},{id:'insights',label:'INSIGHTS'},{id:'home',label:'BACK TO HOME'}]);
+  }
+  else if(id==='cardlessDone'){
+    jShow('Withdrawal Ready','Your cardless withdrawal code is ready!',
+      '<div class="jarvis-fs-card" style="text-align:center;padding:20px"><div class="jfc-sub" style="text-transform:uppercase;letter-spacing:1px">Withdrawal Code</div><div style="font-size:36px;font-weight:800;letter-spacing:6px;margin:8px 0;color:var(--scb-gold);font-family:monospace">4829</div><div class="jfc-sub">Valid for 5 minutes &bull; Any SCB ATM</div></div><div class="jarvis-fs-notice"><span>&#128205;</span><span>Nearest: SCB Siam Paragon — 350m</span></div>',
+      [{id:'transfer',label:'TRANSFER'},{id:'insights',label:'INSIGHTS'},{id:'home',label:'BACK TO HOME'}]);
+  }
+  else if(id==='scanqrDone'){
+    jShow('Payment Done','QR Payment confirmed!',
+      '<div class="jarvis-fs-success"><div class="jfs-icon">&#10003;</div><div class="jfs-text">Payment Successful<br><span style="font-size:12px;font-weight:400;opacity:.8">via PromptPay QR</span></div></div>',
+      [{id:'paybills',label:'PAY BILLS'},{id:'transfer',label:'TRANSFER'},{id:'home',label:'BACK TO HOME'}]);
+  }
+  else if(id==='paybillDone'){
+    jShow('Bill Paid','Bill payment successful!',
+      '<div class="jarvis-fs-success"><div class="jfs-icon">&#10003;</div><div class="jfs-text">Bill Paid<br><span style="font-size:12px;font-weight:400;opacity:.8">From '+B.acct.num+'</span></div></div>',
+      [{id:'paybills',label:'PAY MORE BILLS'},{id:'insights',label:'INSIGHTS'},{id:'home',label:'BACK TO HOME'}]);
+  }
+  else if(id==='payAllBills'){
+    jShow('All Bills Paid','All 4 bills paid in one go!',
+      '<div class="jarvis-fs-success"><div class="jfs-icon">&#10003;</div><div class="jfs-text">4 Bills Paid — &#3647;5,018<br><span style="font-size:12px;font-weight:400;opacity:.8">Electricity, Water, AIS, TRUE Internet</span></div></div><div class="jarvis-fs-notice"><span>&#128161;</span><span>All caught up! Next bill due May 5. Want auto-pay?</span></div>',
+      [{id:'insights',label:'INSIGHTS'},{id:'s2s_card',label:'CARD OFFERS'},{id:'home',label:'BACK TO HOME'}]);
+  }
+  else if(id==='confirmDca'){
+    jShow('DCA Confirmed','Your DCA order has been placed!',
+      '<div class="jarvis-fs-success"><div class="jfs-icon">&#10003;</div><div class="jfs-text">DCA Order Confirmed<br><span style="font-size:12px;font-weight:400;opacity:.8">S&P500 — &#3647; 5,000.00</span></div></div>',
+      [{id:'portfolio',label:'MY PORTFOLIO'},{id:'insights',label:'INSIGHTS'},{id:'home',label:'BACK TO HOME'}]);
+  }
+  else if(id==='changeDca'){
+    jShow('Change DCA','Adjust your monthly DCA amount',
+      `<div class="jarvis-fs-card" onclick="jAction('confirmDca')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div class="jfc-line">&#3647; 3,000/month</div><div class="jfc-sub">Conservative</div></div>
+       <div class="jarvis-fs-card" onclick="jAction('confirmDca')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-color:var(--scb-gold)"><div class="jfc-line">&#3647; 5,000/month</div><div style="color:var(--success);font-size:12px">Current &#10003;</div></div>
+       <div class="jarvis-fs-card" onclick="jAction('confirmDca')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center"><div class="jfc-line">&#3647; 8,000/month</div><div style="color:var(--scb-gold);font-size:12px">Recommended</div></div>`,
+      [{id:'portfolio',label:'BACK TO PORTFOLIO'}]);
+  }
+  else if(id==='pointxTravel'||id==='pointxCash'||id==='pointxSpa'){
+    const labels={pointxTravel:'Airline Miles',pointxCash:'Cashback',pointxSpa:'Spa Voucher'};
+    jShow('PointX Redeemed','Your redemption for '+labels[id]+' has been processed!',
+      '<div class="jarvis-fs-success"><div class="jfs-icon">&#10003;</div><div class="jfs-text">'+labels[id]+' Confirmed</div></div>',
+      [{id:'s2s_card',label:'UPGRADE CARD'},{id:'insights',label:'INSIGHTS'},{id:'home',label:'BACK TO HOME'}]);
+  }
+  else if(id==='home'){
+    document.getElementById('jarvisFs').classList.remove('active');
+    navigate('home');
+  }
+  else{
+    jShow('Jarvis','I\'m working on that for you, '+B.name+'.',null,
+      [{id:'insights',label:'SPEND INSIGHTS'},{id:'s2s_card',label:'CARD OFFERS'},{id:'home',label:'BACK TO HOME'}]);
+  }
+}
+
+function handleChatSend(){
+  const inp=document.getElementById('chatInput'),txt=inp.value.trim();if(!txt)return;inp.value='';
+  const l=txt.toLowerCase();
+  if(l.includes('pay')&&l.includes('bill'))startChatFlow('paybills');
+  else if(l.includes('pay')||l.includes('bill'))startChatFlow('bill');
+  else if(l.includes('scan')||l.includes('qr'))startChatFlow('scanqr');
+  else if(l.includes('transfer')||l.includes('send money'))startChatFlow('transfer');
+  else if(l.includes('top up')||l.includes('topup')||l.includes('mobile')||l.includes('rabbit'))startChatFlow('topup');
+  else if(l.includes('cardless')||l.includes('atm')||l.includes('withdraw'))startChatFlow('cardless');
+  else if(l.includes('goal')||l.includes('saving')||l.includes('target'))startChatFlow('goals');
+  else if(l.includes('spend')||l.includes('insight')||l.includes('budget'))startChatFlow('insights');
+  else if(l.includes('dca')||l.includes('invest'))startChatFlow('portfolio');
+  else if(l.includes('point')||l.includes('reward'))startChatFlow('pointx');
+  else if(l.includes('portfolio')||l.includes('fund'))startChatFlow('portfolio');
+  else if(l.includes('block')||l.includes('lost')||l.includes('stolen')||l.includes('freeze'))startChatFlow('blockcard');
+  else if(l.includes('fraud')||l.includes('unusual')||l.includes('anomal')||l.includes('suspicious'))startChatFlow('anomaly');
+  else if(l.includes('card')||l.includes('upgrade')||l.includes('offer'))startChatFlow('s2s_card');
+  else{jShow('Jarvis','I\'d love to help with that, '+B.name+'!<br>Here\'s what I can do:',null,
+    [{id:'paybills',label:'PAY BILLS'},{id:'insights',label:'SPEND INSIGHTS'},{id:'s2s_card',label:'CARD OFFERS'},{id:'portfolio',label:'PORTFOLIO'},{id:'anomaly',label:'FRAUD ALERT'}]);}
+}
+
+function handleJfsSend(){
+  const inp=document.getElementById('jfsInput'),txt=inp.value.trim();if(!txt)return;inp.value='';
+  handleChatSend.__txt=txt;
+  const l=txt.toLowerCase();
+  if(l.includes('pay')&&l.includes('bill'))startChatFlow('paybills');
+  else if(l.includes('pay')||l.includes('bill'))startChatFlow('bill');
+  else if(l.includes('scan')||l.includes('qr'))startChatFlow('scanqr');
+  else if(l.includes('transfer')||l.includes('send'))startChatFlow('transfer');
+  else if(l.includes('top up')||l.includes('topup'))startChatFlow('topup');
+  else if(l.includes('cardless')||l.includes('atm'))startChatFlow('cardless');
+  else if(l.includes('goal')||l.includes('saving'))startChatFlow('goals');
+  else if(l.includes('spend')||l.includes('insight'))startChatFlow('insights');
+  else if(l.includes('dca')||l.includes('invest'))startChatFlow('portfolio');
+  else if(l.includes('point')||l.includes('reward'))startChatFlow('pointx');
+  else if(l.includes('portfolio')||l.includes('fund'))startChatFlow('portfolio');
+  else if(l.includes('block')||l.includes('lost')||l.includes('stolen'))startChatFlow('blockcard');
+  else if(l.includes('fraud')||l.includes('unusual'))startChatFlow('anomaly');
+  else if(l.includes('card')||l.includes('upgrade'))startChatFlow('s2s_card');
+  else{jShow('Jarvis','I\'d love to help with that, '+B.name+'!',null,
+    [{id:'paybills',label:'PAY BILLS'},{id:'insights',label:'SPEND INSIGHTS'},{id:'s2s_card',label:'CARD OFFERS'},{id:'portfolio',label:'PORTFOLIO'}]);}
+}
+
+// Voice Overlay
+let voiceTimer=null;
+// Jarvis Fullscreen — Card Block Journey
+function openJarvisFs(){
+  document.getElementById('jarvisFs').classList.add('active');
+  blockCardStep(1);
+}
+function closeJarvisFs(){
+  document.getElementById('jarvisFs').classList.remove('active');
+  navigate('home');
+}
+function blockCardStep(step){
+  const body=document.getElementById('jfsBody');
+  const addr='5801 Thanon Asok - Din Daeng, Din Daeng, Bangkok 10400, Thailand';
+  const landmark='Landmark: Behind District Office';
+
+  if(step===1){
+    body.innerHTML=`
+      <div class="jarvis-fs-orb"></div>
+      <div class="jarvis-fs-text">Sorry to hear that, ${B.name}.<br>Don't worry — I have placed a temporary freeze on your card ending in -4624 as of this second. No new transactions can go through.</div>
+    `;
+    setTimeout(()=>blockCardStep(2),2500);
+  }
+  else if(step===2){
+    body.innerHTML=`
+      <div class="jarvis-fs-orb"></div>
+      <div class="jarvis-fs-text">Would you like me to permanently block this card and order a replacement?</div>
+      <div class="jarvis-fs-creditcard">
+        <div class="jcc-brand"><span>SCB EASY</span><span>SCB &#9826;</span></div>
+        <div class="jcc-chip"></div>
+        <div class="jcc-number">5577 55&bull;&bull; &bull;&bull;&bull;&bull; 4624</div>
+        <div class="jcc-bottom"><div class="jcc-nfc">&#8942;))</div><div class="jcc-mc"><span></span><span></span></div></div>
+      </div>
+      <div class="jarvis-fs-actions">
+        <button class="jarvis-fs-btn primary" onclick="blockCardStep(3)">YES, BLOCK CARD AND ORDER REPLACEMENT</button>
+        <button class="jarvis-fs-btn secondary" onclick="blockCardStep('cancel')">CANCEL REQUEST, DO NOTHING</button>
+      </div>
+    `;
+  }
+  else if(step===3){
+    body.innerHTML=`
+      <div class="jarvis-fs-orb"></div>
+      <div class="jarvis-fs-text">Your card is now blocked.<br>I'll place a request for a replacement card now.<br>Can you confirm if this is the correct address?</div>
+      <div class="jarvis-fs-card">
+        <div class="jfc-line">${addr}</div>
+        <div class="jfc-sub">${landmark}</div>
+      </div>
+      <div class="jarvis-fs-actions">
+        <button class="jarvis-fs-btn primary" onclick="blockCardStep(5)">YES, THIS IS MY CORRECT ADDRESS</button>
+        <button class="jarvis-fs-btn secondary" onclick="blockCardStep(4)">ADDRESS IS INCORRECT, UPDATE</button>
+      </div>
+    `;
+  }
+  else if(step===4){
+    body.innerHTML=`
+      <div class="jarvis-fs-orb"></div>
+      <div class="jarvis-fs-text">No Problem, let's quickly update your address on our records.</div>
+      <div class="jarvis-fs-card" style="padding:14px">
+        <div style="display:flex;align-items:center;gap:8px;color:var(--text2);font-size:12px;line-height:1.5">
+          <span style="font-size:16px">&#9432;</span>
+          <span>Start typing your address below and click on the correct one to select</span>
+        </div>
+      </div>
+      <div style="width:100%;margin-top:12px;animation:fadeUp .5s ease both .3s;opacity:0">
+        <div class="jarvis-fs-input-bar" style="position:relative">
+          <input type="text" id="jfsAddrInput" placeholder="Type your address..." oninput="showAddrSuggestions(this.value)" style="flex:1;background:none;border:none;color:#fff;font-size:13px;outline:none">
+        </div>
+        <div id="jfsAddrSuggestions" style="display:none;margin-top:4px;background:rgba(30,20,50,.95);border:1px solid rgba(255,255,255,.08);border-radius:12px;overflow:hidden"></div>
+      </div>
+    `;
+  }
+  else if(step===5){
+    body.innerHTML=`
+      <div class="jarvis-fs-orb"></div>
+      <div class="jarvis-fs-text">Thanks. One last step — we'll now need to verify the below address to save it</div>
+      <div class="jarvis-fs-card">
+        <div class="jfc-line">${addr}</div>
+        <div class="jfc-sub">${landmark}</div>
+      </div>
+      <div class="jarvis-fs-verify">
+        <div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:4px">Select a verification document</div>
+        <label><span>Thai National ID Card</span><input type="radio" name="jfsDoc" value="id" checked></label>
+        <label><span>Tabien Baan (Blue House Registration)</span><input type="radio" name="jfsDoc" value="tabien"></label>
+        <label><span>TM.30 Receipt</span><input type="radio" name="jfsDoc" value="tm30"></label>
+        <label><span>Utility bills (Electricity, Landline, Water, etc.)</span><input type="radio" name="jfsDoc" value="utility"></label>
+      </div>
+      <div class="jarvis-fs-actions">
+        <button class="jarvis-fs-btn primary" onclick="blockCardStep(6)">PROCEED WITH VERIFICATION</button>
+      </div>
+    `;
+  }
+  else if(step===6){
+    body.innerHTML=`
+      <div class="jarvis-fs-orb"></div>
+      <div class="jarvis-fs-text">We are processing your ID card now, please wait</div>
+      <div class="jarvis-fs-card">
+        <div class="jfc-line">${addr}</div>
+        <div class="jfc-sub">${landmark}</div>
+        <div class="jarvis-fs-badge pending">VERIFICATION PENDING &#9203;</div>
+      </div>
+      <div class="jarvis-fs-processing">
+        <div class="jfp-dots"><span></span><span></span><span></span></div>
+        <div class="jfp-text">Processing your ID card</div>
+      </div>
+      <div class="jarvis-fs-notice"><span>&#128336;</span><span>Give us 2-3 mins to analyse your captured ID card and complete the verification</span></div>
+    `;
+    setTimeout(()=>blockCardStep(7),3000);
+  }
+  else if(step===7){
+    body.innerHTML=`
+      <div class="jarvis-fs-orb"></div>
+      <div class="jarvis-fs-text">Great, your ID card verification is complete and the address has been updated on our systems.</div>
+      <div class="jarvis-fs-card">
+        <div class="jfc-line">${addr}</div>
+        <div class="jfc-sub">${landmark}</div>
+        <div class="jarvis-fs-badge verified">VERIFIED &#10003;</div>
+      </div>
+      <div class="jarvis-fs-success">
+        <div class="jfs-icon">&#128737;</div>
+        <div class="jfs-text">Success! We have verified your ID card</div>
+      </div>
+    `;
+    setTimeout(()=>blockCardStep(8),2500);
+  }
+  else if(step===8){
+    body.innerHTML=`
+      <div class="jarvis-fs-orb"></div>
+      <div class="jarvis-fs-text">Awesome, all done!<br>We'll be dispatching a replacement card soon to the below address</div>
+      <div class="jarvis-fs-card">
+        <div class="jfc-line">${addr}</div>
+        <div class="jfc-sub">${landmark}</div>
+        <div class="jarvis-fs-badge verified">VERIFIED &#10003;</div>
+      </div>
+      <div class="jarvis-fs-actions">
+        <button class="jarvis-fs-btn primary" onclick="jAction('home')">BACK TO HOME</button>
+        <button class="jarvis-fs-btn secondary" onclick="jAction('insights')">SPEND INSIGHTS</button>
+      </div>
+    `;
+    markJourney('anomaly');
+  }
+  else if(step==='cancel'){
+    body.innerHTML=`
+      <div class="jarvis-fs-orb"></div>
+      <div class="jarvis-fs-text">No worries! Your card remains <span style="color:var(--warning)">temporarily frozen</span>. You can unfreeze it anytime from your card settings or just ask me.</div>
+      <div class="jarvis-fs-card">
+        <div class="jfc-line">CardX Visa Platinum ending -4624</div>
+        <div class="jarvis-fs-badge frozen">FROZEN &#10052;&#65039;</div>
+        <div class="jfc-sub" style="margin-top:6px">Say "unfreeze my card" anytime to reactivate</div>
+      </div>
+      <div class="jarvis-fs-actions">
+        <button class="jarvis-fs-btn primary" onclick="blockCardStep(2)">PERMANENTLY BLOCK INSTEAD</button>
+        <button class="jarvis-fs-btn secondary" onclick="closeJarvisFs();navigate('home')">BACK TO HOME</button>
+      </div>
+    `;
+  }
+}
+
+function showAddrSuggestions(val){
+  const box=document.getElementById('jfsAddrSuggestions');
+  if(!val||val.length<3){box.style.display='none';return;}
+  const suggestions=[
+    '5801 Thanon Asok - Din Daeng, Din Da...',
+    '5801 Thankful gardens, London, SW1W 9QQ',
+    '5801 Thayer Lane, Vancouver, BC, V6B 1P1',
+    '5801 Thames Drive Plaza, Iselin, NJ 08830'
+  ];
+  box.style.display='block';
+  box.innerHTML=suggestions.map((s,i)=>`<div onclick="selectAddr(${i})" style="padding:12px 14px;font-size:13px;color:#fff;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.04);transition:background .15s${i===0?';background:rgba(201,168,76,.08)':''}" onmouseenter="this.style.background='rgba(201,168,76,.08)'" onmouseleave="this.style.background='${i===0?'rgba(201,168,76,.08)':'transparent'}'">${s}</div>`).join('');
+}
+function selectAddr(){
+  blockCardStep(5);
+}
+
+function openVoice(){
+  const ov=document.getElementById('voiceOverlay');
+  ov.classList.add('active');
+  document.getElementById('voStatus').textContent='Listening...';
+  document.getElementById('voTranscript').textContent='';
+  document.getElementById('voTranscript').classList.remove('show');
+  document.getElementById('voPrompts').style.display='';
+  document.getElementById('voWaves').style.opacity='1';
+}
+function closeVoice(){
+  document.getElementById('voiceOverlay').classList.remove('active');
+  if(voiceTimer){clearTimeout(voiceTimer);voiceTimer=null;}
+}
+function voiceSelect(flow){
+  const phrases={bill:'Pay my credit card bill',insights:'Show my spending insights',s2s_card:'What card offers do I have?',transfer:'Transfer money to Somchai',portfolio:'Show my portfolio',pointx:'Check my PointX balance',anomaly:'Report unusual transaction',goals:'Show my financial goals',blockcard:'I lost my wallet, block my card',paybills:'Pay my electricity bill',scanqr:'Scan QR to pay'};
+  const txt=phrases[flow]||'Help me with my banking';
+  document.getElementById('voPrompts').style.display='none';
+  document.getElementById('voStatus').textContent='Processing...';
+  const tr=document.getElementById('voTranscript');
+  tr.textContent='\u201C'+txt+'\u201D';
+  tr.classList.add('show');
+  voiceTimer=setTimeout(()=>{
+    document.getElementById('voStatus').textContent='Got it!';
+    document.getElementById('voWaves').style.opacity='.2';
+    voiceTimer=setTimeout(()=>{
+      closeVoice();
+      navigate('chat',flow);
+    },800);
+  },1200);
+}
+
+// Time
+function updateTime(){const n=new Date(),h=n.getHours(),m=String(n.getMinutes()).padStart(2,'0'),t=h+':'+m;document.getElementById('statusTime').textContent=t;document.getElementById('lockTime').textContent=t;const d=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],mo=['January','February','March','April','May','June','July','August','September','October','November','December'];document.getElementById('lockDate').textContent=`${d[n.getDay()]}, ${n.getDate()} ${mo[n.getMonth()]}`;}
+
+// Init
+updateTime();setInterval(updateTime,30000);
+render();
+updateJourneyTracker();
+
+// Auto-navigate for Figma capture via ?screen= param
+(function(){
+  const p=new URLSearchParams(window.location.search);
+  const scr=p.get('screen');
+  if(scr){
+    setTimeout(()=>{
+      if(scr==='home') navigate('home');
+      else if(scr==='briefing'){navigate('home');setTimeout(()=>navigate('briefing'),300);}
+      else if(scr==='chat'){navigate('home');setTimeout(()=>navigate('chat'),300);}
+      else if(scr==='portfolio'){navigate('home');setTimeout(()=>navigate('portfolio'),300);}
+      else if(scr==='profile'){navigate('home');setTimeout(()=>navigate('profile'),300);}
+      else if(scr==='wellness'){navigate('home');setTimeout(()=>{navigate('briefing');setTimeout(()=>showWellness(),500);},300);}
+    },500);
+  }
+})();
+</script>
+</body>
+</html>
