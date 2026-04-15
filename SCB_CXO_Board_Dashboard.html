@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SCB — CXO board cockpit</title>
+  <title>Phoenix Dashboard — SCBx personalization journeys</title>
   <style>
     :root{
       --bg:#05040f;
@@ -50,6 +50,14 @@
       flex-wrap:wrap;
     }
     .app-panel-head--journey .dash-top-title{margin:0}
+    .dash-brand{
+      display:flex;
+      align-items:baseline;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .dash-brand b{color:#fff}
+    .dash-brand .sub{font-size:12px;color:rgba(244,240,255,.58);font-weight:600;letter-spacing:.02em;text-transform:none}
     .app-panel-head--journey select{
       background:rgba(255,255,255,.06);
       border:1px solid rgba(255,255,255,.12);
@@ -649,7 +657,8 @@
     .kpi .kpi-mom.good{color:var(--good)}
     .kpi .kpi-mom.bad{color:#fca5a5}
     .dash-journey-kpis .kpi--board .d{display:none}
-    .dash-journey-kpis{margin:0;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.14)}
+    /* Monday demo: de-prioritize top metrics (journey-first). */
+    .dash-journey-kpis{display:none}
     .dash-journey-kpis .kpirow-exec{padding:8px 8px 10px;margin:0;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;grid-auto-rows:auto}
     @media(max-width:520px){.dash-journey-kpis .kpirow-exec{grid-template-columns:1fr}}
     .exec-panel--single .dash-journey-kpis .kpirow-exec .kpi{min-height:0;padding:7px 8px 8px;border-radius:12px}
@@ -665,8 +674,8 @@
       line-height:1.25;
     }
     .exec-panel--single .dash-journey-kpis .kpirow-exec .kpi .v{margin-top:4px;min-height:0;font-size:clamp(14px,2.1vw,17px)}
-    .dash-journeys{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:12px 14px 18px;flex:1;min-height:0;align-items:stretch}
-    @media(max-width:1180px){.dash-journeys{grid-template-columns:1fr}}
+    /* Monday demo: journey-first layout (4 large blocks) */
+    .dash-journeys{display:flex;flex-direction:column;gap:14px;padding:12px 14px 18px;flex:1;min-height:0;align-items:stretch}
     .dash-journey-col{display:flex;flex-direction:column;min-width:0;min-height:0;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.1);border-radius:16px;overflow:hidden}
     .dash-journey-head{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.22)}
     .dash-journey-head h3{margin:0;font-size:13px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#fff;line-height:1.35}
@@ -799,6 +808,73 @@
       border:0;
       background:#07050f;
     }
+
+    .journey-blocks{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      padding:12px 12px 14px;
+      align-items:stretch;
+    }
+    @media(max-width:920px){.journey-blocks{grid-template-columns:1fr}}
+    .journey-block{
+      background:rgba(0,0,0,.22);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:16px;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      min-height:380px;
+    }
+    .journey-block .cap{
+      padding:10px 12px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      background:rgba(0,0,0,.18);
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .journey-block .cap b{
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:.1em;
+      text-transform:uppercase;
+      color:rgba(201,168,76,.92);
+      line-height:1.25;
+    }
+    .journey-block .cap .metrics{
+      font-size:11px;
+      color:rgba(244,240,255,.55);
+      font-weight:800;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      text-align:right;
+      line-height:1.25;
+    }
+    .journey-block .body{flex:1;min-height:0;display:flex;flex-direction:column}
+    .journey-block .frame{position:relative;flex:1;min-height:0;background:#07050f}
+    .journey-block .frame iframe,.journey-block .frame img{position:absolute;inset:0;width:100%;height:100%;border:0;object-fit:contain;object-position:top center}
+    .journey-block .note{padding:10px 12px;font-size:12px;color:rgba(244,240,255,.62);border-top:1px solid rgba(255,255,255,.06)}
+
+    .offers-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px}
+    @media(max-width:520px){.offers-grid{grid-template-columns:1fr}}
+    .offer{
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.10);
+      background:linear-gradient(165deg,rgba(36,22,58,.75),rgba(0,0,0,.28));
+      padding:12px;
+      min-height:118px;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .offer .k{font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:rgba(232,213,160,.85)}
+    .offer .t{font-size:13px;font-weight:900;color:#fff;line-height:1.25}
+    .offer .d{font-size:12px;color:rgba(244,240,255,.62);line-height:1.35}
+    .offer .why{margin-top:auto;font-size:11px;color:rgba(201,168,76,.82);font-weight:900;letter-spacing:.02em}
     .dash-frame-static-img{
       position:absolute;
       inset:0;
@@ -868,6 +944,14 @@
             <div class="twin-field-label">Risk appetite</div>
             <div class="chip-row" id="riskChips" role="radiogroup" aria-label="Risk appetite"></div>
           </div>
+          <div class="twin-field">
+            <div class="twin-field-label">Language preference</div>
+            <div class="chip-row" id="langChips" role="radiogroup" aria-label="Language preference"></div>
+          </div>
+          <div class="twin-field">
+            <div class="twin-field-label"><span>Interests (demo)</span></div>
+            <div class="chip-row chip-multi-wrap" id="interestChips" aria-label="Interests"></div>
+          </div>
           <p class="twin-dc-inline" id="pContextInline" aria-live="polite" title="Read-only · driven by the selected persona segment"></p>
           <div class="btnrow">
             <button class="btn btn-ghost" type="button" id="btnReset">Reset</button>
@@ -878,7 +962,10 @@
 
     <section class="panel exec-panel exec-panel--single app-right">
       <div class="app-panel-head app-panel-head--journey">
-        <h2 class="dash-top-title">Journey board</h2>
+        <div class="dash-brand">
+          <h2 class="dash-top-title">Phoenix Dashboard</h2>
+          <span class="sub">Journey-centric personalization showcase (Monday demo)</span>
+        </div>
         <select id="boardHorizon" aria-label="Board time horizon">
           <option value="realtime">Last 15 min</option>
           <option value="month" selected>Last 30 days</option>
@@ -887,61 +974,77 @@
       <div class="dash-journeys">
         <div class="dash-journey-col" id="dashJourney1Col" aria-label="Journey 1 · Daily engagement">
           <div class="dash-journey-head">
-            <h3>Journey 1 · Daily engagement — Morning brief</h3>
+            <h3>Journey 1 · Daily engagement</h3>
           </div>
           <div class="dash-journey-kpis exec-kpi-stack" id="kpiJourney1" aria-label="Journey 1 metrics"></div>
           <div class="dash-journey-embed">
-            <div class="dash-brief-shell" id="dashBriefShell">
-              <div class="dash-j1-ab-grid">
-                <p class="dash-embed-step-label dash-j1-ab-label-a">A · Morning brief</p>
-                <p class="dash-embed-step-label dash-j1-ab-label-b">B · App home page</p>
-                <div class="dash-j1-slot dash-j1-slot--a">
-                  <div class="dash-phone-shell">
-                    <div class="dash-mini-frame dash-mini-frame--j1-b">
-                      <iframe id="briefProtoIframe" class="dash-proto-iframe" title="A · Morning brief — clickable prototype" src="about:blank" loading="lazy"></iframe>
-                    </div>
+            <div class="journey-blocks" aria-label="Journey 1 blocks">
+              <div class="journey-block" aria-label="Journey 1 · A Morning brief">
+                <div class="cap">
+                  <b>Journey 1A · Morning brief</b>
+                  <div class="metrics" aria-label="Success metrics (placeholders)">
+                    <span>Click rate</span>
+                    <span>Engagement time</span>
                   </div>
                 </div>
-                <div class="dash-j1-slot dash-j1-slot--b">
-                  <div class="dash-phone-shell dash-phone-shell--static-b">
-                    <div class="dash-mini-frame dash-mini-frame--j1-b dash-mini-frame--static-home">
-                      <img class="dash-frame-static-img" src="assets/journey-b-jarvis-app-home.png" alt="App home page reference" loading="lazy" decoding="async" />
-                    </div>
+                <div class="body">
+                  <div class="frame">
+                    <iframe id="briefProtoIframe" class="dash-proto-iframe" title="A · Morning brief — clickable prototype" src="about:blank" loading="lazy"></iframe>
                   </div>
+                  <div class="note">Persona-driven surface (content modules vary by segment).</div>
+                </div>
+              </div>
+              <div class="journey-block" aria-label="Journey 1 · B App home page">
+                <div class="cap">
+                  <b>Journey 1B · App homepage</b>
+                  <div class="metrics" aria-label="Success metrics (placeholders)">
+                    <span>Time spent</span>
+                    <span>Feature adoption</span>
+                  </div>
+                </div>
+                <div class="body">
+                  <div class="frame">
+                    <img src="assets/journey-b-jarvis-app-home.png" alt="App home page reference" loading="lazy" decoding="async" />
+                  </div>
+                  <div class="note">Static reference for Monday (interactivity de-scoped).</div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <div class="dash-journey-col" id="dashJourney2Col" aria-label="Journey 2 · Conversational-led servicing and service to sales">
+        <div class="dash-journey-col" id="dashJourney2Col" aria-label="Journey 2 · Conversational servicing and service-to-sales">
           <div class="dash-journey-head">
-            <h3>Journey 2 · Conversational-led servicing and service to sales</h3>
+            <h3>Journey 2 · Conversational servicing → service-to-sales</h3>
           </div>
           <div class="dash-journey-kpis exec-kpi-stack" id="kpiJourney2" aria-label="Journey 2 metrics"></div>
           <div class="dash-journey-embed">
-            <div class="dash-journey-pair">
-              <div class="dash-tile">
-                <div class="dash-tile-cap">
-                  <span class="dash-tile-cap-text">C · Loan servicing</span>
-                </div>
-                <div class="dash-scroll-stack dash-scroll-stack--single">
-                  <div class="dash-phone-shell">
-                    <div class="dash-mini-frame dash-mini-frame--c-jarvis dash-mini-frame--tall">
-                      <iframe id="j2LoanServicingFlowIframe" title="C · Loan servicing — Jarvis flow" src="SCB_Loan_Servicing_Jarvis_Flow.html?persona=young_professional&cxo_embed=1"></iframe>
-                    </div>
+            <div class="journey-blocks" aria-label="Journey 2 blocks">
+              <div class="journey-block" aria-label="Journey 2 · C Servicing chat">
+                <div class="cap">
+                  <b>Journey 2C · Conversational start / servicing</b>
+                  <div class="metrics" aria-label="Success metrics (placeholders)">
+                    <span>Resolution rate</span>
+                    <span>FCR</span>
                   </div>
+                </div>
+                <div class="body">
+                  <div class="frame">
+                    <iframe id="j2LoanServicingFlowIframe" title="C · Loan servicing — Jarvis flow" src="SCB_Loan_Servicing_Jarvis_Flow.html?persona=young_professional&cxo_embed=1"></iframe>
+                  </div>
+                  <div class="note">Use this to show context-aware servicing (persona changes copy/flow).</div>
                 </div>
               </div>
-              <div class="dash-tile">
-                <div class="dash-tile-cap">
-                  <span class="dash-tile-cap-text">D · Transaction anomaly</span>
-                </div>
-                <div class="dash-scroll-stack dash-scroll-stack--single">
-                  <div class="dash-phone-shell">
-                    <div class="dash-mini-frame dash-mini-frame--tall">
-                      <iframe id="j2IframeUc1" title="D · Transaction anomaly" src="SCB_Anomaly_Jarvis_Prototype.html?persona=young_professional"></iframe>
-                    </div>
+              <div class="journey-block" aria-label="Journey 2 · D Post-servicing offers">
+                <div class="cap">
+                  <b>Journey 2D · Post-servicing offers (service → sales)</b>
+                  <div class="metrics" aria-label="Success metrics (placeholders)">
+                    <span>Offer CTR</span>
+                    <span>Conversion</span>
                   </div>
+                </div>
+                <div class="body">
+                  <div class="offers-grid" id="postOffers" aria-label="Personalized offers"></div>
+                  <div class="note">Dynamic demo: change language + interests (left) to watch offers update.</div>
                 </div>
               </div>
             </div>
@@ -999,6 +1102,16 @@
       { v: "borrow", l: "Borrow" },
       { v: "invest", l: "Invest" }
     ];
+    const LANG_OPTS = [
+      { v: "EN", l: "English" },
+      { v: "TH", l: "Thai" }
+    ];
+    const INTEREST_OPTS = [
+      { v: "fashion", l: "Fashion" },
+      { v: "sports", l: "Sports" },
+      { v: "travel", l: "Travel" },
+      { v: "food", l: "Food" }
+    ];
     const RISK_OPTS = [
       { v: "low", l: "Low" },
       { v: "moderate", l: "Moderate" },
@@ -1047,6 +1160,8 @@
         if (!t.goalTags.length) t.goalTags = ["ease_of_banking"];
       }
       if (t.risk === "balanced") t.risk = "moderate";
+      if (!t.language) t.language = "EN";
+      if (!Array.isArray(t.interests) || !t.interests.length) t.interests = ["fashion"];
       delete t.channel;
       return t;
     }
@@ -1140,6 +1255,10 @@
         `<button type="button" class="chip" data-kind="goal" data-value="${o.v}">${escapeHtml(o.l)}</button>`).join("");
       el("riskChips").innerHTML = RISK_OPTS.map(o =>
         `<button type="button" class="chip" data-kind="risk" data-value="${o.v}">${escapeHtml(o.l)}</button>`).join("");
+      el("langChips").innerHTML = LANG_OPTS.map(o =>
+        `<button type="button" class="chip" data-kind="lang" data-value="${o.v}">${escapeHtml(o.l)}</button>`).join("");
+      el("interestChips").innerHTML = INTEREST_OPTS.map(o =>
+        `<button type="button" class="chip" data-kind="interest" data-value="${o.v}">${escapeHtml(o.l)}</button>`).join("");
     }
 
     function syncTwinChipStyles(){
@@ -1165,6 +1284,76 @@
         b.classList.toggle("is-on", on);
         b.setAttribute("aria-pressed", on ? "true" : "false");
       });
+
+      const lang = t.language || "EN";
+      el("langChips").querySelectorAll(".chip").forEach(b=>{
+        b.classList.toggle("is-on", b.dataset.value === lang);
+        b.setAttribute("aria-checked", b.dataset.value === lang ? "true" : "false");
+      });
+      const ints = new Set(t.interests || []);
+      el("interestChips").querySelectorAll(".chip").forEach(b=>{
+        const on = ints.has(b.dataset.value);
+        b.classList.toggle("is-on", on);
+        b.setAttribute("aria-pressed", on ? "true" : "false");
+      });
+    }
+
+    function ttxt(en, th, lang){
+      return (lang || "EN") === "TH" ? th : en;
+    }
+
+    function buildPostServicingOffers(personaId){
+      const t = State.twins[personaId] || {};
+      const lang = t.language || "EN";
+      const ints = Array.isArray(t.interests) ? t.interests : ["fashion"];
+      const primary = ints[0] || "fashion";
+      const goalSet = new Set(t.goalTags || []);
+
+      const base = [];
+      // Offer mart (mock): pick 4 offers based on persona goals + interest + channel.
+      if (goalSet.has("invest")) base.push({k:"Invest", id:"inv", tEn:"Starter portfolio bundle", tTh:"ชุดเริ่มลงทุน", dEn:"Auto-suggested funds aligned to risk appetite.", dTh:"แนะนำกองทุนตามความเสี่ยง", whyEn:"Why: invest + high income", whyTh:"เหตุผล: สนใจลงทุน + รายได้สูง"});
+      if (goalSet.has("borrow")) base.push({k:"Borrow", id:"bor", tEn:"Pre-approved personal loan top-up", tTh:"สินเชื่อเพิ่มวงเงิน (พร้อมอนุมัติ)", dEn:"Instant top-up for planned purchases.", dTh:"เพิ่มวงเงินทันทีสำหรับแผนซื้อของ", whyEn:"Why: borrow goal + servicing context", whyTh:"เหตุผล: เป้าหมายสินเชื่อ + บริการหลังการสนทนา"});
+      if (goalSet.has("save")) base.push({k:"Save", id:"sav", tEn:"Round-up savings plan", tTh:"ออมเงินแบบปัดเศษ", dEn:"Save automatically with daily spending.", dTh:"ออมอัตโนมัติจากการใช้จ่าย", whyEn:"Why: save goal + family stage", whyTh:"เหตุผล: เป้าหมายออม + ครอบครัวเริ่มต้น"});
+      base.push({k:"Service", id:"svc", tEn:"Bill payment reminders", tTh:"เตือนชำระบิล", dEn:"Reduce missed payments after servicing.", dTh:"ลดการลืมชำระหลังรับบริการ", whyEn:"Why: improve resolution & retention", whyTh:"เหตุผล: เพิ่มการแก้ปัญหาและรักษาลูกค้า"});
+
+      const interestOffers = {
+        fashion: {k:"Lifestyle", tEn:"Fashion partner cashback", tTh:"เงินคืนร้านแฟชั่น", dEn:"Cashback on selected fashion merchants.", dTh:"เงินคืนร้านค้าที่ร่วมรายการ", whyEn:"Why: interest = fashion", whyTh:"เหตุผล: สนใจแฟชั่น"},
+        sports: {k:"Lifestyle", tEn:"Sports & fitness membership", tTh:"สมาชิกฟิตเนส/กีฬา", dEn:"Discounted membership and gear offers.", dTh:"ส่วนลดสมาชิกและอุปกรณ์", whyEn:"Why: interest = sports", whyTh:"เหตุผล: สนใจกีฬา"},
+        travel: {k:"Lifestyle", tEn:"Travel FX & lounge pack", tTh:"แพ็กแลกเงิน+เลานจ์", dEn:"Better FX rates + airport lounge access.", dTh:"เรทแลกเงินดีขึ้น + เข้าเลานจ์", whyEn:"Why: interest = travel", whyTh:"เหตุผล: สนใจท่องเที่ยว"},
+        food: {k:"Lifestyle", tEn:"Dining deals nearby", tTh:"ดีลร้านอาหารใกล้คุณ", dEn:"Personalized dining offers in-app.", dTh:"ข้อเสนอร้านอาหารเฉพาะคุณ", whyEn:"Why: interest = food", whyTh:"เหตุผล: สนใจอาหาร"}
+      };
+      base.push({id:"int", ...interestOffers[primary]});
+
+      // Ensure 4 offers: take first 4 unique by id.
+      const uniq = [];
+      const seen = new Set();
+      for (const o of base){
+        const id = o.id || o.tEn || JSON.stringify(o);
+        if (seen.has(id)) continue;
+        seen.add(id);
+        uniq.push(o);
+      }
+      while (uniq.length < 4) uniq.push(interestOffers[primary]);
+      return uniq.slice(0,4).map(o=>({
+        k: o.k || "Offer",
+        t: ttxt(o.tEn, o.tTh, lang),
+        d: ttxt(o.dEn, o.dTh, lang),
+        why: ttxt(o.whyEn || "Why: persona + context", o.whyTh || "เหตุผล: บุคลิก + บริบท", lang)
+      }));
+    }
+
+    function renderPostOffers(){
+      const host = el("postOffers");
+      if (!host) return;
+      const offers = buildPostServicingOffers(State.personaId);
+      host.innerHTML = offers.map(o=>`
+        <div class="offer">
+          <div class="k">${escapeHtml(o.k)}</div>
+          <div class="t">${escapeHtml(o.t)}</div>
+          <div class="d">${escapeHtml(o.d)}</div>
+          <div class="why">${escapeHtml(o.why)}</div>
+        </div>
+      `).join("");
     }
 
     function syncTwinUi(){
@@ -1209,12 +1398,17 @@
         if (kind === "lifeStage"){ t.lifeStage = v; }
         else if (kind === "channel"){ t.channels = [v]; }
         else if (kind === "risk"){ t.risk = v; }
+        else if (kind === "lang"){ t.language = v; }
         else if (kind === "goal"){
           const arr = [...(t.goalTags || [])];
           const i = arr.indexOf(v);
           if (i >= 0){ if (arr.length > 1) arr.splice(i, 1); }
           else arr.push(v);
           t.goalTags = arr;
+        }
+        else if (kind === "interest"){
+          // Demo behavior: single active interest to show “interest shift → offer refresh”
+          t.interests = [v];
         }
         State.previewEpoch++;
         syncTwinChipStyles();
@@ -1319,14 +1513,7 @@
       if (cur !== next) ifr.src = href;
     }
 
-    function syncAnomalyProtoIframePersona(){
-      const ifr = el("j2IframeUc1");
-      if (!ifr) return;
-      const href = anomalyProtoHref();
-      const cur = normalizePageHref(ifr.getAttribute("src") || ifr.src || "");
-      const next = normalizePageHref(href);
-      if (cur !== next) ifr.src = href;
-    }
+    // Transaction anomaly screen is de-scoped for Monday demo (replaced by post-servicing offers).
 
     function loanServicingHref(){
       const pid = State.personaId;
@@ -1345,7 +1532,6 @@
 
     function syncJourneyEmbedHrefs(){
       syncBriefIframePersona();
-      syncAnomalyProtoIframePersona();
       syncLoanServicingIframePersona();
     }
 
@@ -1354,6 +1540,7 @@
       syncTwinUi();
       renderJourneyKpis();
       syncJourneyEmbedHrefs();
+      renderPostOffers();
     }
 
     el("btnReset").onclick = ()=>{
