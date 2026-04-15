@@ -809,14 +809,14 @@
       background:#07050f;
     }
 
+    /* RHS: vertical stack A → B → C → D */
     .journey-blocks{
-      display:grid;
-      grid-template-columns:1fr 1fr;
+      display:flex;
+      flex-direction:column;
       gap:12px;
       padding:12px 12px 14px;
       align-items:stretch;
     }
-    @media(max-width:920px){.journey-blocks{grid-template-columns:1fr}}
     .journey-block{
       background:rgba(0,0,0,.22);
       border:1px solid rgba(255,255,255,.10);
@@ -875,6 +875,16 @@
     .offer .t{font-size:13px;font-weight:900;color:#fff;line-height:1.25}
     .offer .d{font-size:12px;color:rgba(244,240,255,.62);line-height:1.35}
     .offer .why{margin-top:auto;font-size:11px;color:rgba(201,168,76,.82);font-weight:900;letter-spacing:.02em}
+
+    /* Persona strip (single row) */
+    .persona-strip{display:flex;gap:8px;flex-wrap:wrap}
+    .persona-strip .persona-swatch{flex:1;min-width:0}
+    .persona-swatch.is-selected{
+      border-color:rgba(232,213,160,.85) !important;
+      background:linear-gradient(145deg, rgba(232,213,160,.22), rgba(201,168,76,.10)) !important;
+      box-shadow:0 0 0 1px rgba(232,213,160,.28) inset, 0 10px 28px rgba(201,168,76,.08);
+    }
+    .persona-swatch.is-selected span{color:rgba(232,213,160,.98)}
     .dash-frame-static-img{
       position:absolute;
       inset:0;
@@ -972,16 +982,15 @@
         </select>
       </div>
       <div class="dash-journeys">
-        <div class="dash-journey-col" id="dashJourney1Col" aria-label="Journey 1 · Daily engagement">
+        <div class="dash-journey-col" id="dashJourneyAllCol" aria-label="Journeys A to D">
           <div class="dash-journey-head">
-            <h3>Journey 1 · Daily engagement</h3>
+            <h3>Journeys (A → D)</h3>
           </div>
-          <div class="dash-journey-kpis exec-kpi-stack" id="kpiJourney1" aria-label="Journey 1 metrics"></div>
           <div class="dash-journey-embed">
-            <div class="journey-blocks" aria-label="Journey 1 blocks">
-              <div class="journey-block" aria-label="Journey 1 · A Morning brief">
+            <div class="journey-blocks" aria-label="Journey blocks A to D">
+              <div class="journey-block" aria-label="A · Morning brief">
                 <div class="cap">
-                  <b>Journey 1A · Morning brief</b>
+                  <b>A · Morning brief</b>
                   <div class="metrics" aria-label="Success metrics (placeholders)">
                     <span>Click rate</span>
                     <span>Engagement time</span>
@@ -994,9 +1003,10 @@
                   <div class="note">Persona-driven surface (content modules vary by segment).</div>
                 </div>
               </div>
-              <div class="journey-block" aria-label="Journey 1 · B App home page">
+
+              <div class="journey-block" aria-label="B · App homepage">
                 <div class="cap">
-                  <b>Journey 1B · App homepage</b>
+                  <b>B · App homepage</b>
                   <div class="metrics" aria-label="Success metrics (placeholders)">
                     <span>Time spent</span>
                     <span>Feature adoption</span>
@@ -1009,19 +1019,10 @@
                   <div class="note">Static reference for Monday (interactivity de-scoped).</div>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-        <div class="dash-journey-col" id="dashJourney2Col" aria-label="Journey 2 · Conversational servicing and service-to-sales">
-          <div class="dash-journey-head">
-            <h3>Journey 2 · Conversational servicing → service-to-sales</h3>
-          </div>
-          <div class="dash-journey-kpis exec-kpi-stack" id="kpiJourney2" aria-label="Journey 2 metrics"></div>
-          <div class="dash-journey-embed">
-            <div class="journey-blocks" aria-label="Journey 2 blocks">
-              <div class="journey-block" aria-label="Journey 2 · C Servicing chat">
+
+              <div class="journey-block" aria-label="C · Conversational servicing">
                 <div class="cap">
-                  <b>Journey 2C · Conversational start / servicing</b>
+                  <b>C · Conversational start / servicing</b>
                   <div class="metrics" aria-label="Success metrics (placeholders)">
                     <span>Resolution rate</span>
                     <span>FCR</span>
@@ -1034,9 +1035,10 @@
                   <div class="note">Use this to show context-aware servicing (persona changes copy/flow).</div>
                 </div>
               </div>
-              <div class="journey-block" aria-label="Journey 2 · D Post-servicing offers">
+
+              <div class="journey-block" aria-label="D · Post-servicing offers">
                 <div class="cap">
-                  <b>Journey 2D · Post-servicing offers (service → sales)</b>
+                  <b>D · Post-servicing offers (service → sales)</b>
                   <div class="metrics" aria-label="Success metrics (placeholders)">
                     <span>Offer CTR</span>
                     <span>Conversion</span>
@@ -1441,33 +1443,20 @@
     function renderPersonas(){
       const list = el("personaList");
       list.innerHTML = "";
-      const cur = Mock.personas.find(x => x.personaId === State.personaId);
-      if (!cur) return;
-      const solo = document.createElement("div");
-      solo.className = "persona persona--solo active";
-      solo.setAttribute("aria-current", "true");
-      solo.innerHTML = `
-        <img src="${cur.avatar}" alt="" width="64" height="64" referrerpolicy="no-referrer" />
-        <div>
-          <p class="n">${escapeHtml(cur.name)}</p>
-          <p class="s">${escapeHtml(cur.short)}</p>
-        </div>`;
-      list.appendChild(solo);
-      const others = Mock.personas.filter(p => p.personaId !== State.personaId);
-      if (!others.length) return;
-      const hint = document.createElement("p");
-      hint.className = "persona-switch-hint";
-      hint.textContent = "Select another persona.";
-      list.appendChild(hint);
+      if (!Mock.personas.length) return;
+
       const strip = document.createElement("div");
-      strip.className = "persona-switch";
+      strip.className = "persona-strip";
       strip.setAttribute("role", "group");
-      strip.setAttribute("aria-label", "Other personas");
-      for (const p of others){
+      strip.setAttribute("aria-label", "Select persona");
+
+      for (const p of Mock.personas){
         const b = document.createElement("button");
         b.type = "button";
-        b.className = "persona-swatch";
-        b.setAttribute("aria-label", `Show ${p.name}`);
+        const selected = p.personaId === State.personaId;
+        b.className = "persona-swatch" + (selected ? " is-selected" : "");
+        if (selected) b.setAttribute("aria-current", "true");
+        b.setAttribute("aria-label", selected ? `Selected: ${p.name}` : `Select ${p.name}`);
         b.innerHTML = `<img src="${p.avatar}" alt="" width="30" height="30" referrerpolicy="no-referrer" /><span>${escapeHtml(p.name)}</span>`;
         b.onclick = ()=>{ State.personaId = p.personaId; syncTwinUi(); renderAll(); };
         strip.appendChild(b);
